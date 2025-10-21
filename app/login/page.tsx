@@ -21,7 +21,7 @@ export default function LoginPage() {
     );
     if (loginUser.fulfilled.match(action)) {
       const role = action.payload.user.role;
-      if (role === "ADMIN") router.push("/admin");
+      if (role === "ADMIN") router.push("/admin/users");
       if (role === "TEACHER") router.push("/teacher");
       if (role === "STUDENT") router.push("/student");
     }

@@ -1,137 +1,189 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   getTeacherGrades,
   getTeacherSubjects,
   getStudentsByGrade,
+  getTestsBySubject,
 } from "@/lib/axios";
+import Link from "next/link";
 
-interface Grade {
-  id: number;
-  name: string;
-}
+export default function TeacherDashboard() {
+  const router = useRouter();
 
-interface Subject {
-  id: number;
-  name: string;
-  grade: { id: number; name: string };
-}
-
-interface Student {
-  id: number;
-  name: string;
-  surname: string;
-  username?: string;
-}
-
-export default function TeacherDashboardPage() {
-  const [grades, setGrades] = useState<Grade[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [grades, setGrades] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<number | null>(null);
+  const [students, setStudents] = useState<any[]>([]);
+  const [tests, setTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔹 O‘qituvchining sinflari va fanlarini olish
   useEffect(() => {
-    (async () => {
+    async function loadData() {
       try {
-        const res = await getTeacherGrades();
-        setGrades(res.data);
+        const [gradesRes, subjectsRes] = await Promise.all([
+          getTeacherGrades(),
+          getTeacherSubjects(),
+        ]);
+        setGrades(gradesRes.data);
+        setSubjects(subjectsRes.data);
       } catch (err) {
-        console.error("Grade olishda xatolik:", err);
+        console.error("Ma’lumotlarni yuklashda xatolik:", err);
       } finally {
         setLoading(false);
       }
-    })();
+    }
+    loadData();
   }, []);
 
+  // 🔹 SINF tanlanganda o‘quvchilarni yuklash
   const handleSelectGrade = async (gradeId: number) => {
     setSelectedGrade(gradeId);
+    setSelectedSubject(null);
+    setTests([]);
     try {
-      // Fanlar teacherga qarab olinadi
-      const subjectRes = await getTeacherSubjects();
-      const filteredSubjects = subjectRes.data.filter(
-        (s: Subject) => s.grade.id === gradeId
-      );
-      setSubjects(filteredSubjects);
-
-      // O‘quvchilarni sinf bo‘yicha olish
-      const studentsRes = await getStudentsByGrade(gradeId);
-      setStudents(studentsRes.data);
+      const res = await getStudentsByGrade(gradeId);
+      setStudents(res.data);
     } catch (err) {
-      console.error("Ma'lumot olishda xatolik:", err);
+      console.error("O‘quvchilarni olishda xatolik:", err);
     }
   };
 
-  if (loading) return <div className="p-4">Yuklanmoqda...</div>;
+  // 🔹 FAN tanlanganda testlarni yuklash
+  const handleSelectSubject = async (subjectId: number) => {
+    setSelectedSubject(subjectId);
+    try {
+      const res = await getTestsBySubject(subjectId);
+      setTests(res.data);
+    } catch (err) {
+      console.error("Testlarni olishda xatolik:", err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 text-gray-500 text-center">Yuklanmoqda...</div>
+    );
+  }
 
   return (
-    <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-bold">📚 Teacher Dashboard</h1>
+    <div className="p-8 space-y-8">
+      <h1 className="text-2xl font-bold text-gray-800">
+        👨‍🏫 O‘qituvchi paneli
+      </h1>
 
-      {/* Sinflar ro‘yxati */}
+      {/* 🔹 SINFLAR RO‘YXATI */}
       <div>
-        <h2 className="text-xl font-semibold mb-2">Mening sinflarim</h2>
-        <div className="flex gap-2 flex-wrap">
-          {grades.map((grade) => (
-            <button
-              key={grade.id}
-              onClick={() => handleSelectGrade(grade.id)}
-              className={`px-4 py-2 rounded-lg border transition ${
-                selectedGrade === grade.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200"
-              }`}
-            >
-              {grade.name}
-            </button>
-          ))}
-        </div>
+        <h2 className="text-lg font-semibold mb-3">🎓 Mening sinflarim</h2>
+        {grades.length === 0 ? (
+          <p className="text-gray-500">Sizga biriktirilgan sinflar yo‘q.</p>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {grades.map((g) => (
+              <button
+                key={g.id}
+                onClick={() => handleSelectGrade(g.id)}
+                className={`px-4 py-2 rounded-lg border ${
+                  selectedGrade === g.id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Fanlar ro‘yxati */}
+      {/* 🔹 O‘QUVCHILAR RO‘YXATI */}
       {selectedGrade && (
-        <div>
-          <h2 className="text-xl font-semibold mb-2">📖 Fanlar</h2>
-          {subjects.length === 0 ? (
-            <p>Fanlar topilmadi</p>
+        <div className="border rounded-lg p-4 bg-white shadow-sm">
+          <h3 className="font-semibold text-gray-700 mb-3">
+            {grades.find((g) => g.id === selectedGrade)?.name} sinf o‘quvchilari:
+          </h3>
+          {students.length === 0 ? (
+            <p className="text-gray-500">Bu sinfda o‘quvchilar topilmadi.</p>
           ) : (
-            <ul className="list-disc ml-5">
-              {subjects.map((subject) => (
-                <li key={subject.id}>{subject.name}</li>
+            <ul className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {students.map((s) => (
+                <li key={s.id} className="border p-2 rounded-md text-sm">
+                  {s.surname} {s.name}
+                </li>
               ))}
             </ul>
           )}
         </div>
       )}
 
-      {/* O‘quvchilar ro‘yxati */}
-      {selectedGrade && (
-        <div>
-          <h2 className="text-xl font-semibold mb-2">👨‍🎓 O‘quvchilar</h2>
-          {students.length === 0 ? (
-            <p>Bu sinfda hozircha o‘quvchi yo‘q</p>
+      {/* 🔹 FANLAR RO‘YXATI */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3">📚 Mening fanlarim</h2>
+        {subjects.length === 0 ? (
+          <p className="text-gray-500">Sizga biriktirilgan fanlar yo‘q.</p>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {subjects.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleSelectSubject(s.id)}
+                className={`px-4 py-2 rounded-lg border ${
+                  selectedSubject === s.id
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
+                {s.name} ({s.grade.name})
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 🔹 FAN TESTLARI */}
+      {selectedSubject && (
+        <div className="border rounded-lg p-4 bg-white shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-gray-700">
+              {subjects.find((s) => s.id === selectedSubject)?.name} fanidagi testlar:
+            </h3>
+            <button
+              onClick={() => router.push(`/teacher/tests/create?subjectId=${selectedSubject}`)}
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg"
+            >
+              ➕ Yangi test yaratish
+            </button>
+          </div>
+
+          {tests.length === 0 ? (
+            <p className="text-gray-500">Bu fan uchun hali test yaratilmagan.</p>
           ) : (
-            <table className="w-full border-collapse border">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-3 py-2 text-left">#</th>
-                  <th className="border px-3 py-2 text-left">Ism</th>
-                  <th className="border px-3 py-2 text-left">Familiya</th>
-                  <th className="border px-3 py-2 text-left">Login</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s, idx) => (
-                  <tr key={s.id}>
-                    <td className="border px-3 py-2">{idx + 1}</td>
-                    <td className="border px-3 py-2">{s.name}</td>
-                    <td className="border px-3 py-2">{s.surname}</td>
-                    <td className="border px-3 py-2">{s.username ?? "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ul className="space-y-3">
+  {tests.map((t) => (
+    <li
+      key={t.id}
+      className="border p-3 rounded-lg flex justify-between items-center hover:bg-gray-50"
+    >
+      <Link href={`/teacher/tests/${t.id}`} className="flex-1">
+        <p className="font-medium hover:underline">{t.title}</p>
+        <p className="text-sm text-gray-500">
+          {new Date(t.createdAt).toLocaleDateString()}
+        </p>
+      </Link>
+
+      <Link
+        href={`/teacher/tests/${t.id}/results`}
+        className="text-blue-600 hover:underline"
+      >
+        Natijalar →
+      </Link>
+    </li>
+  ))}
+</ul>
           )}
         </div>
       )}

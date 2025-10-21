@@ -3,12 +3,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSubjectsByGrade } from "@/lib/axios";
+import GradeStudents from "../../gradeStudent";
 
-export default function TeacherGradePage() {
+export default function TeacherGradePage({ params }: { params: { id: string } }) {
   const { id } = useParams();
   const [subjects, setSubjects] = useState<any[]>([]);
   const router = useRouter();
-
+  const gradeId = Number(params.id);
+  
   useEffect(() => {
     if (id) {
       getSubjectsByGrade(Number(id))
@@ -31,6 +33,7 @@ export default function TeacherGradePage() {
               onClick={() => router.push(`/teacher/subject/${subject.id}`)}
             >
               <h2 className="font-semibold">{subject.name}</h2>
+                   <GradeStudents gradeId={gradeId} />
             </div>
           ))}
         </div>
