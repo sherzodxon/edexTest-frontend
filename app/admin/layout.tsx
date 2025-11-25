@@ -2,24 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Users, BookOpen, Layers } from "lucide-react";
-import { Button } from "../../components/ui/button";
+import { Users, BookOpen, Layers, FileText } from "lucide-react";
+import EdexLogo from "@/components/ui/logo";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Foydalanuvchilar", href: "/admin/users", icon: <Users size={18} /> },
-    { name: "Sinflar", href: "/admin/grades", icon: <Layers size={18} /> },
-    { name: "Fanlar", href: "/admin/subjects", icon: <BookOpen size={18} /> },
+    { name: "Foydalanuvchilar", href: "/admin/users", icon: <Users size={22} /> },
+    { name: "Sinflar", href: "/admin/grades", icon: <Layers size={22} /> },
+    { name: "Fanlar", href: "/admin/subjects", icon: <BookOpen size={22} /> },
+    { name:"Testlar", href:"/admin/tests",icon:<FileText size={22}/>}
   ];
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
       <aside className="w-64 bg-gray-800 p-4 flex flex-col justify-between">
         <div>
-          <h1 className="text-xl font-bold mb-6">Admin Panel</h1>
+          <Link href="/admin/users" className="text-xl flex items-center font-bold text-green-600 mb-2">
+          <EdexLogo className="w-10 h-10"/> EdEx
+         </Link>
 
           <nav className="flex flex-col gap-2">
             {navItems.map((item) => (
@@ -34,12 +36,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Link>
             ))}
           </nav>
-        </div>
-
-        <div className="border-t border-gray-700 pt-4">
-          <Button variant="danger" className="w-full flex items-center gap-2">
-            <LogOut size={18} /> Chiqish
-          </Button>
         </div>
       </aside>
 

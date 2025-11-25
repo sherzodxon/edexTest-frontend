@@ -1,6 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
-import api from "../../../lib/axios";
+
+import React, { useEffect, useState } from "react";
+import api from "@/lib/axios";
+import { Plus, Search, Edit, Trash2, X, BookOpen } from "lucide-react";
+import toast from "react-hot-toast";
+import useConfirmToast from "@/components/hooks/useConfirmToast";
 
 interface Grade {
   id: number;
@@ -17,20 +21,25 @@ interface Subject {
 export default function AdminSubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [filtered, setFiltered] = useState<Subject[]>([]);
+  const [query, setQuery] = useState("");
+
+  const [showModal, setShowModal] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const { showConfirm } = useConfirmToast();
   const [form, setForm] = useState<{ name: string; gradeId: string }>({
     name: "",
     gradeId: "",
   });
-  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
 
-  // 🔹 Ma’lumotlarni olish
   const fetchSubjects = async () => {
     try {
       const res = await api.get("/subjects");
       setSubjects(res.data);
+      setFiltered(res.data);
     } catch (err) {
       console.error(err);
-      alert("Fanlarni olishda xatolik!");
+      toast.error("Fanlarni olishda xatolik!");
     }
   };
 
@@ -48,144 +57,190 @@ export default function AdminSubjectsPage() {
     fetchGrades();
   }, []);
 
-  // 🔹 Qo‘shish / Tahrirlash
+  useEffect(() => {
+    const q = query.toLowerCase();
+    setFiltered(
+      subjects.filter((s) =>
+        s.name.toLowerCase().includes(q)
+      )
+    );
+  }, [query, subjects]);
+
+  const openAdd = () => {
+    setEditingSubject(null);
+    setForm({ name: "", gradeId: "" });
+    setShowModal(true);
+  };
+
+  const handleEdit = (s: Subject) => {
+    setEditingSubject(s);
+    setForm({ name: s.name, gradeId: String(s.gradeId) });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    const ok = await showConfirm("Haqiqatan ham fanni o'chirmoqchimisiz?");
+    if (!ok) return;
+
+    try {
+      await api.delete(`/subjects/${id}`);
+      fetchSubjects();
+      toast.success("Fan o'chirildi");
+    } catch {
+      toast.error("O'chirishda xatolik!");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (!form.name || !form.gradeId) {
-        alert("Fan nomi va sinf tanlanishi kerak!");
-        return;
-      }
 
+    try {
       if (editingSubject) {
         await api.put(`/subjects/${editingSubject.id}`, {
           name: form.name,
           gradeId: Number(form.gradeId),
         });
+        toast.success("Fan muvaffaqiyatli yangilandi");
       } else {
-        await api.post("/subjects", {
+        await api.post(`/subjects`, {
           name: form.name,
           gradeId: Number(form.gradeId),
         });
+        toast.success("Fan muvaffaqiyatli yaratildi");
       }
 
-      setForm({ name: "", gradeId: "" });
+      setShowModal(false);
       setEditingSubject(null);
       fetchSubjects();
-    } catch (err) {
-      console.error(err);
-      alert("Saqlashda xatolik!");
+    } catch {
+      toast.error("Saqlashda xatolik!");
     }
-  };
-
-  // 🔹 O‘chirish
-  const handleDelete = async (id: number) => {
-    if (confirm("Rostdan ham o‘chirilsinmi?")) {
-      await api.delete(`/subjects/${id}`);
-      fetchSubjects();
-    }
-  };
-
-  // 🔹 Tahrirlash
-  const handleEdit = (subject: Subject) => {
-    setEditingSubject(subject);
-    setForm({ name: subject.name, gradeId: String(subject.gradeId) });
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📚 Fanlar boshqaruvi</h1>
-
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-2  p-4 rounded mb-6"
-      >
-        <input
-          type="text"
-          placeholder="Fan nomi (masalan: Matematika)"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="border p-2 rounded w-full"
-          required
-        />
-
-        <select
-          value={form.gradeId}
-          onChange={(e) => setForm({ ...form, gradeId: e.target.value })}
-          className="border p-2 rounded w-full sm:w-1/3"
-          required
-        >
-          <option value="">Sinf tanlang</option>
-          {grades.map((g) => (
-            <option key={g.id} value={g.id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
+    <div className="text-white">
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <BookOpen /> Fanlar boshqaruvi ({subjects.length})
+        </h1>
 
         <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={openAdd}
+          className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded flex items-center gap-1 cursor-pointer"
         >
-          {editingSubject ? "Yangilash" : "Qo‘shish"}
+          <Plus size={18} /> Yangi fan
         </button>
+      </div>
 
-        {editingSubject && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingSubject(null);
-              setForm({ name: "", gradeId: "" });
-            }}
-            className="bg-gray-400 text-white px-4 py-2 rounded"
-          >
-            Bekor qilish
-          </button>
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-2 top-2.5 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Qidirish..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full bg-gray-800 p-2 pl-10 rounded"
+        />
+      </div>
+
+      {/* List */}
+      <div className="bg-gray-800 rounded p-3">
+        {filtered.length === 0 ? (
+          <p className="text-center text-gray-400 py-4">Hech narsa topilmadi</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {filtered.map((s, i) => (
+              <div
+                key={s.id}
+                className="bg-gray-900 p-3 rounded flex justify-between items-center hover:bg-gray-700"
+              >
+                <div className="flex gap-4 items-center">
+                  <p>{i + 1}.</p>
+                  <div>
+                    <p className="font-semibold">{s.name}</p>
+                    <p className="text-gray-400 text-sm">
+                      Sinf: {s.grade?.name || "-"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(s)}>
+                    <Edit className="text-yellow-400 hover:text-yellow-300 cursor-pointer" />
+                  </button>
+                  <button onClick={() => handleDelete(s.id)}>
+                    <Trash2 className="text-red-500 hover:text-red-300 cursor-pointer" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </form>
+      </div>
 
-      {/* Jadval */}
-      <table className="w-full border">
-        <thead className=" text-left">
-          <tr>
-            <th className="p-2">#</th>
-            <th className="p-2">Fan nomi</th>
-            <th className="p-2">Sinf</th>
-            <th className="p-2">Amallar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subjects.map((s, i) => (
-            <tr key={s.id} className="border-t">
-              <td className="p-2">{i + 1}</td>
-              <td className="p-2">{s.name}</td>
-              <td className="p-2">{s.grade?.name || "—"}</td>
-              <td className="p-2 space-x-2">
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-gray-900 w-full max-w-md p-6 rounded shadow-lg relative">
+            <button
+              className="absolute right-3 top-3 text-gray-400 hover:text-white"
+              onClick={() => setShowModal(false)}
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-xl font-bold mb-4">
+              {editingSubject ? "Fan tahrirlash" : "Yangi fan qo‘shish"}
+            </h2>
+
+            <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Fan nomi (masalan: Matematika)"
+                value={form.name}
+                onChange={(e) =>
+                  setForm({ ...form, name: e.target.value })
+                }
+                className="p-2 rounded bg-gray-800"
+                required
+              />
+
+              <select
+                value={form.gradeId}
+                onChange={(e) =>
+                  setForm({ ...form, gradeId: e.target.value })
+                }
+                className="p-2 rounded bg-gray-800"
+                required
+              >
+                <option value="">Sinf tanlang</option>
+                {grades.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex justify-end gap-2 mt-2">
                 <button
-                  onClick={() => handleEdit(s)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded"
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"
                 >
-                  Edit
+                  Bekor
                 </button>
                 <button
-                  onClick={() => handleDelete(s.id)}
-                  className="bg-red-600 text-white px-3 py-1 rounded"
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded"
                 >
-                  Delete
+                  Saqlash
                 </button>
-              </td>
-            </tr>
-          ))}
-          {subjects.length === 0 && (
-            <tr>
-              <td colSpan={4} className="p-4 text-center text-gray-500">
-                Hozircha fanlar mavjud emas
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
