@@ -132,7 +132,6 @@ export default function AdminSubjectsPage() {
         </button>
       </div>
 
-      {/* Search */}
       <div className="relative mb-4">
         <Search className="absolute left-2 top-2.5 text-gray-400" />
         <input
@@ -144,7 +143,6 @@ export default function AdminSubjectsPage() {
         />
       </div>
 
-      {/* List */}
       <div className="bg-gray-800 rounded p-3">
         {filtered.length === 0 ? (
           <p className="text-center text-gray-400 py-4">Hech narsa topilmadi</p>
@@ -179,7 +177,6 @@ export default function AdminSubjectsPage() {
         )}
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-gray-900 w-full max-w-md p-6 rounded shadow-lg relative">

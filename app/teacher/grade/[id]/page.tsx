@@ -6,8 +6,6 @@ import Link from "next/link";
 import api, {
   getTeacherSubjects,
   getStudentsByGrade,
-  getTestsBySubject,
-  getAverageResultsBySubject,
   getTeacherTestsBySubject,
   getAverageBySubject,
 } from "@/lib/axios";

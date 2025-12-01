@@ -126,36 +126,25 @@ export default function CreateTestPage() {
     const [isArabicPanelOpen,
         setIsArabicPanelOpen] = useState(false);
 
-    const arabicLetters = [
-        "ا",
-        "ب",
-        "ت",
-        "ث",
-        "ج",
-        "ح",
-        "خ",
-        "د",
-        "ذ",
-        "ر",
-        "ز",
-        "س",
-        "ش",
-        "ص",
-        "ض",
-        "ط",
-        "ظ",
-        "ع",
-        "غ",
-        "ف",
-        "ق",
-        "ك",
-        "ل",
-        "م",
-        "ن",
-        "هـ",
-        "و",
-        "ي"
-    ];
+   const arabicKeyboard = [
+    // Asosiy 28 ta harf
+    "ا","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش",
+    "ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","ه","و","ي",
+
+    // Qo‘shimcha harf shakllari
+    "أ","إ","آ","ؤ","ئ","ء","ة","ٱ","لا",
+
+    // Harakatlar (diakritik belgilar)
+    "َ","ُ","ِ",
+    "ً","ٌ","ٍ",
+    "ْ","ّ","ٰ","ٓ",
+
+    // Maxsus belgilar
+    "؟","،","؛","ـ",
+
+    // Sharq arab raqamlari
+    "٠","١","٢","٣","٤","٥","٦","٧","٨","٩"
+];
 
     const flatpickrOptions = {
         locale: Uzbek,
@@ -486,7 +475,7 @@ export default function CreateTestPage() {
             {isArabicPanelOpen && (
                 <div
                     className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-xl p-2 flex flex-wrap gap-2 z-50">
-                    {arabicLetters.map((l, i) => (
+                    {arabicKeyboard.map((l, i) => (
                         <button
                             key={i}
                             type="button"
@@ -500,7 +489,7 @@ export default function CreateTestPage() {
                                 mf.focus();
                             }
                         }}
-                            className="px-3 py-1 bg-gray-100 hover:bg-blue-100 rounded text-lg cursor-pointer">
+                            className="px-3 py-1 bg-gray-200 hover:bg-blue-300 rounded text-lg cursor-pointer">
                             {l}
                         </button>
                     ))}
