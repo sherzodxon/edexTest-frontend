@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-montserrat)", "sans-serif"],
+        sans: ["var(--font-rubik)", "sans-serif"],
       },
       colors: {
         edexGreen: "#27a55d",

@@ -72,7 +72,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 ">
       <aside className="w-64 bg-white shadow-lg border-r p-4 flex flex-col">
         <div className="flex justify-between items-center mb-4">
           <Link href="/teacher" className="text-xl font-bold text-green-600 flex gap-2 items-center">
@@ -88,12 +88,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
               <Link
                 key={grade.id}
                 href={`/teacher/grade/${grade.id}`}
-                className={`flex items-center gap-2 px-2 py-1 rounded-md text-sm ${
+                className={`flex items-center gap-2 px-2 py-2 font-bolt rounded-md ${
                   pathname.includes(`/grade/${grade.id}`)
-                    ? "bg-blue-100 text-blue-700"
+                    ? "bg-green-500 text-white"
                     : "hover:bg-gray-100"
                 }`}
-              > <GraduationCapIcon />
+              > <GraduationCapIcon size={24} />
                 {grade.name}
               </Link>
             ))

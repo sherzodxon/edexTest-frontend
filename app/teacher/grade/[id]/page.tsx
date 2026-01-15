@@ -132,7 +132,7 @@ export default function GradeDetailsPage() {
         </h2>
         <div className="flex flex-wrap gap-3">
           {subjects.length === 0 ? (
-            <p className="text-gray-500">Bu sinfga fanlar biriktirilmagan.</p>
+            <p className="text-gray-500">Bu sinfda sizga fanlar hozircha biriktirilmagan.</p>
           ) : (
             subjects.map((s) => (
               <button

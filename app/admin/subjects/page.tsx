@@ -121,14 +121,14 @@ export default function AdminSubjectsPage() {
     <div className="text-white">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen /> Fanlar boshqaruvi ({subjects.length})
+          <BookOpen size={30} className="text-[#FDAA48]" /> Fanlar boshqaruvi <span className="text-orange-300">({subjects.length})</span>
         </h1>
 
         <button
           onClick={openAdd}
-          className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded flex items-center gap-1 cursor-pointer"
+          className="bg-gradient-to-r to-[#AAFFA9] from-green-500  px-3 py-2 rounded flex items-center gap-1 cursor-pointer"
         >
-          <Plus size={18} /> Yangi fan
+          <Plus size={18} /> Yangi fan qo'shish
         </button>
       </div>
 

@@ -237,15 +237,13 @@ const formatTime = (seconds: number) => {
      <p className="text-red-500 font-semibold mb-6">
        Qolgan vaqt: {formatTime(timeLeft)}
 </p>
-
-
       {test.questions.map((q, idx) => (
         <Card key={q.id} className="mb-4">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2 font-semibold">
               <span>{idx + 1}.</span>
               <div className={`${/[\u0600-\u06FF]/.test(q.text) ? "text-right" : "text-left"}`}>
-                <BlockMath math={q.text || ""} />
+               <BlockMath math={q.text?.replace(/ /g, "\\ ") || ""} />
               </div>
             </div>
 

@@ -174,14 +174,16 @@ export default function CreateTestPage() {
                 const el = document.getElementById(qId);
                 if (el && !el.querySelector("math-field")) {
                     const mf = new(window as any).MathfieldElement();
-                    mf.className = "w-full border rounded-lg px-3 py-2 bg-white min-h-[60px] text-lg focus-within:ri" +
-                            "ng-2 ring-blue-300 transition";
+                    mf.className = "w-full border rounded-lg px-3 py-2 bg-white min-h-[60px] text-lg focus-within:ring-2 ring-blue-300 transition";
                     mf.value = q.text || "";
                     mf.placeholder = "Savol formulasi yoki matnni kiriting...";
                     mf.addEventListener("input", () => {
                         const newQs = [...questions];
                         newQs[qIndex].text = mf.getValue("latex");
                         setQuestions(newQs);
+                    });
+                    mf.setOptions({
+                    defaultMode: "text"
                     });
                     mf.addEventListener("focus", () => setFocusedField(`q-${qIndex}`));
                     mf.addEventListener("blur", () => setFocusedField(null));
@@ -205,6 +207,9 @@ export default function CreateTestPage() {
                                 newQs[qIndex].options[optIndex] = mfOpt.getValue("latex");
                                 setQuestions(newQs);
                             });
+                             mfOpt.setOptions({
+                    defaultMode: "text"
+                    });
                             mfOpt.addEventListener("focus", () => setFocusedField(`q-${qIndex}-opt-${optIndex}`));
                             mfOpt.addEventListener("blur", () => setFocusedField(null));
                             optEl.appendChild(mfOpt);
@@ -338,8 +343,9 @@ export default function CreateTestPage() {
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <Card className="p-4 space-y-4">
-                    <input
+                <Card className="p-4 space-y-4 bg-[#a7d495]">
+                     <div className="grid grid-cols-1 md:grid-cols-2 m-0 gap-4">
+                       <input
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -360,6 +366,8 @@ export default function CreateTestPage() {
                             </option>
                         ))}
                     </select>
+                     </div>
+                   
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Flatpickr
                            value={startTime ? [startTime] : []}

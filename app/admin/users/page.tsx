@@ -204,9 +204,9 @@ const handleEdit = (user: any) => {
   return (
     <div className="text-white">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Users/> Foydalanuvchilar ({users.length})</h1>
-        <button className="flex items-center gap-1 bg-blue-500 px-3 py-2 rounded hover:bg-blue-600 cursor-pointer" onClick={handleAdd}>
-          <Plus />Foydalanuvchi Qo'shish
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Users size={30} className="text-[#90EE90]"/> Foydalanuvchilar <span className="text-orange-300">({users.length})</span></h1>
+        <button className="bg-gradient-to-r to-[#AAFFA9] from-green-500  px-3 py-2 rounded flex items-center gap-1 cursor-pointer" onClick={handleAdd}>
+          <Plus/>Foydalanuvchi qo'shish
         </button>
       </div>
 

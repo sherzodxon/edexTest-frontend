@@ -86,13 +86,13 @@ export default function AdminGradesPage() {
   return (
     <div className="text-white">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold flex gap-2 items-center"><Layers/> Sinflar boshqaruvi ({grades.length})</h1>
+        <h1 className="text-2xl font-bold flex gap-2 items-center"><Layers size={30} className="text-blue-400"/> Sinflar boshqaruvi <span className="text-orange-300">({grades.length})</span></h1>
 
         <button
-          className="bg-blue-600 px-3 py-2 rounded flex items-center gap-1 hover:bg-blue-700 cursor-pointer"
+          className="bg-gradient-to-r to-[#AAFFA9] from-green-500  px-3 py-2 rounded flex items-center gap-1 cursor-pointer"
           onClick={handleAdd}
         >
-          <Plus size={18} /> Yangi sinf
+          <Plus size={18} /> Yangi sinf qo'shish
         </button>
       </div>
 

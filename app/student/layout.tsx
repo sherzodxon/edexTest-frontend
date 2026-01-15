@@ -38,9 +38,10 @@ export default function StudentLayout({
     );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="bg-white shadow flex items-center justify-between px-6 py-4">
-        <Link href="/student" className="text-xl flex items-center font-bold text-green-600">
+    <div >
+      <header className="bg-white fixed w-full z-50">
+        <div className="shadow flex items-center justify-between px-6 py-4">
+       <Link href="/student" className="text-xl flex items-center font-bold text-green-600">
           <EdexLogo className="w-10 h-10"/> EdEx
         </Link>
         
@@ -55,8 +56,10 @@ export default function StudentLayout({
             <LogOut/>
           </button>
         </div>
+        </div>
+        
       </header>
-      <main className="flex-1">{children}</main>
+      <main className="pt-14">{children}</main>
     </div>
   );
 }

@@ -57,7 +57,7 @@ export default function AdminTestsPage() {
     <div className="space-y-4 text-white">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <FileText /> Testlar boshqaruvi ({tests.length})
+          <FileText size={30} className="text-[#DA70D6]" /> Testlar boshqaruvi <span className="text-orange-300">({tests.length})</span>
         </h1>
       </div>
 
