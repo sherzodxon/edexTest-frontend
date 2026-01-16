@@ -40,7 +40,7 @@ export default function TestDetailsPage() {
   const now = new Date();
   const isOngoing = test.endTime && new Date(test.endTime) > now;
 
-  const s = io("https://edexschool.uz:3001", { transports: ["websocket"] });
+  const s = io("http://edexschool.uz:3001", { transports: ["websocket"] });
 
   if (isOngoing) {
    s.on("connect", () => {
