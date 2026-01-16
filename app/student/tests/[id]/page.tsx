@@ -149,7 +149,7 @@ const formatTime = (seconds: number) => {
   useEffect(() => {
     if (!id) return;
 
-    const socket = io("http://edexschool.uz:3001", { transports: ["websocket"], reconnection: true });
+    const socket = io("https://test.edexschool.uz/w", { transports: ["websocket"], reconnection: true });
     socketRef.current = socket;
 
     const student = JSON.parse(localStorage.getItem("user") || "{}");
