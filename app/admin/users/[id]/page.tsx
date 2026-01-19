@@ -122,7 +122,7 @@ export default function UserDashboardPage() {
   if (!user) return <div className="p-6">Foydalanuvchi topilmadi</div>;
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="min-h-screen">
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
       <CircleUser size={28} className="text-[#C3B091]" />  {user.name} {user.surname}
       </h1>

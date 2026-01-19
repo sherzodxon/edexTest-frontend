@@ -181,16 +181,31 @@ const handleEdit = (user: any) => {
         <div className="flex items-center gap-3">
           {getRoleIcon(u.role)}
           <div>
-            <p className="text-lg">{u.name} {u.surname}</p>
-            <p className="text-sm text-gray-400">{u.username}</p>
+          <p className="text-base sm:text-lg">
+  {u.name} {u.surname}
+</p>
+
+<p className="text-xs sm:text-sm text-gray-400">
+  {u.username}
+</p>
+
           </div>
         </div>
         <div className="flex gap-2 items-center">
           {u.role !== "ADMIN" && (
             <>
-              <button onClick={() => handleEdit(u)}><Edit className="text-yellow-400 cursor-pointer" /></button>
-              <button onClick={() => handleDelete(u.id)}><Trash2 className="text-red-500 cursor-pointer" /></button>
-              <Link href={`/admin/users/${u.id}`}><ChevronRight /></Link>
+              <button onClick={() => handleEdit(u)}>
+             <Edit className="text-yellow-400 cursor-pointer w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+             <button onClick={() => handleDelete(u.id)}>
+            <Trash2 className="text-red-500 cursor-pointer w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+             <Link href={`/admin/users/${u.id}`}>
+             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+             </Link>
+
             </>
           )}
         </div>
@@ -204,21 +219,38 @@ const handleEdit = (user: any) => {
   return (
     <div className="text-white">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Users size={30} className="text-[#90EE90]"/> Foydalanuvchilar <span className="text-orange-300">({users.length})</span></h1>
-        <button className="bg-gradient-to-r to-[#AAFFA9] from-green-500  px-3 py-2 rounded flex items-center gap-1 cursor-pointer" onClick={handleAdd}>
-          <Plus/>Foydalanuvchi qo'shish
-        </button>
+        <h1 className="text-lg font-bold flex items-center gap-2 sm:text-2xl">
+  <Users className="text-[#90EE90] w-5 h-5 sm:w-8 sm:h-8" />
+
+  {/* Matn faqat 640px+ */}
+  <span className="hidden sm:inline">
+    Foydalanuvchilar
+  </span>
+
+  <span className="text-orange-300">
+    ({users.length})
+  </span>
+</h1>
+
+        <button
+  className="bg-gradient-to-r to-[#AAFFA9] from-green-500 px-2 sm:px-3 py-2 rounded flex items-center gap-1 text-sm sm:text-base"
+  onClick={handleAdd}
+>
+  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+  <span className="hidden sm:inline">Yangi sinf qo'shish</span>
+</button>
+
       </div>
 
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 text-gray-400" />
+       <Search className="absolute left-2 top-2.5 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
           <input
             type="text"
             placeholder="Qidirish..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-gray-800 p-2 pl-10 rounded"
+            className="w-full bg-gray-800 p-2 pl-8 rounded"
           />
         </div>
 
@@ -246,7 +278,7 @@ const handleEdit = (user: any) => {
 
      {showModal && (
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div className="bg-gray-900 p-6 rounded w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="bg-gray-900 w-[95%] sm:max-w-md p-4 sm:p-6 rounded max-h-[90vh] overflow-y-auto">
       <h2 className="text-lg font-bold mb-4">{editingUser ? "Tahrirlash" : "Yangi foydalanuvchi"}</h2>
 
       <form className="flex flex-col gap-3" onSubmit={handleSubmit}>

@@ -122,15 +122,15 @@ export default function GradeDetailsPage() {
     );
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+    <div className="space-y-6 sm:space-y-8 px-3 sm:px-0">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
         {gradeRes || ""}-sinf paneli
       </h1>
       <div>
         <h2 className="flex items-center gap-2 text-lg font-semibold mb-3">
           <LibraryBig /> Fanlar
         </h2>
-        <div className="flex flex-wrap gap-3">
+       <div className="flex flex-wrap gap-2 sm:gap-3">
           {subjects.length === 0 ? (
             <p className="text-gray-500">Bu sinfda sizga fanlar hozircha biriktirilmagan.</p>
           ) : (
@@ -138,12 +138,12 @@ export default function GradeDetailsPage() {
               <button
                 key={s.id}
                 onClick={() => handleSelectSubject(s.id)}
-                className={`flex gap-2 px-4 py-2 rounded-lg border ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border text-sm sm:text-base ${
                   selectedSubject === s.id
                     ? "bg-green-600 text-white"
                     : "bg-gray-100 hover:bg-gray-200"
                 }`}
-              >  <BookMarked />
+              >  <BookMarked className="w-4 h-4 sm:w-5 sm:h-5" />
                 {s.name}
               </button>
             ))
@@ -156,15 +156,16 @@ export default function GradeDetailsPage() {
           className="flex justify-between items-center cursor-pointer select-none"
           onClick={() => setOpenStudents(!openStudents)}
         >
-          <h3 className="font-semibold text-gray-700 text-lg flex items-center gap-2">
+          <h3 className="font-semibold text-gray-700 text-base sm:text-lg flex items-center gap-2">
             <UsersRound className="w-5 h-5 text-blue-600" />
             O'quvchilar
           </h3>
           {openStudents ? (
-            <ChevronUp className="text-gray-500" />
-          ) : (
-            <ChevronDown className="text-gray-500" />
-          )}
+  <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+) : (
+  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+)}
+
         </div>
 
         {openStudents && (
@@ -175,14 +176,14 @@ export default function GradeDetailsPage() {
               <ul className="flex flex-col gap-3">
                 {students.map((s) => (
                   <li
-                    key={s.id}
-                    onClick={() => handleShowStudentResults(s)}
-                    className={`flex items-center gap-2 border p-2 rounded-md text-sm cursor-pointer hover:bg-blue-50 transition w-full ${
-                      !selectedSubject && "opacity-60 cursor-not-allowed"
-                    }`}
-                  >
-                  <UserRound />  {s.surname} {s.name}
-                  </li>
+  className={`flex items-center gap-2 border p-2 rounded-md text-xs sm:text-sm cursor-pointer hover:bg-blue-50 transition w-full ${
+    !selectedSubject && "opacity-60 cursor-not-allowed"
+  }`}
+>
+  <UserRound className="w-4 h-4 sm:w-5 sm:h-5" />
+  {s.surname} {s.name}
+</li>
+
                 ))}
               </ul>
             )}
@@ -198,7 +199,7 @@ export default function GradeDetailsPage() {
 
     <div className="max-w-full overflow-x-auto ">
       <div>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={260} className="sm:h-[300px]">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis hide dataKey="testName" />
@@ -234,7 +235,8 @@ export default function GradeDetailsPage() {
 )}
       {selectedSubject && (
         <div className="border rounded-lg p-4 bg-white shadow-sm">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+
             <h3 className="font-semibold text-gray-700">
               {
                 subjects.find((s) => s.id === selectedSubject)?.name
@@ -243,9 +245,9 @@ export default function GradeDetailsPage() {
             </h3>
             <Link
               href={`/teacher/tests/create?subjectId=${selectedSubject}`}
-              className="flex gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg"
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm sm:text-base"
             >
-              <DiamondPlus /> Test yaratish
+             <DiamondPlus className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
           </div>
 
@@ -275,7 +277,8 @@ export default function GradeDetailsPage() {
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+          <Dialog.Panel className="bg-white rounded-xl shadow-lg max-w-md w-full p-4 sm:p-6">
+
             <Dialog.Title className="text-lg font-bold text-gray-800 mb-2 flex gap-2">
              <ChartBar /> {selectedStudent?.surname} {selectedStudent?.name}
             </Dialog.Title>
@@ -288,12 +291,13 @@ export default function GradeDetailsPage() {
               <>
                 <div className="text-center mb-4">
                   <p className="text-gray-600 text-sm">O'rtacha natija</p>
-                  <p className="text-3xl font-bold text-blue-600">
+                <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                     {studentResults.averageScore}%
                   </p>
                 </div>
 
-                <ul className="space-y-2 overflow-y-auto h-64">
+               <ul className="space-y-2 overflow-y-auto max-h-60 sm:max-h-64">
+
                   {studentResults.results.map((r: any, i: number) => (
                     <li
                       key={i}

@@ -19,30 +19,36 @@ export default function TeacherDashboard() {
 
   if (!user)
     return (
-      <div className="flex justify-center items-center min-h-screen text-gray-500flex gap-2 items-center"> <ClockArrowDown /> Yuklanmoqda
+      <div className="flex justify-center items-center min-h-screen text-gray-500 gap-2">
+        <ClockArrowDown className="w-5 h-5" />
+        Yuklanmoqda...
       </div>
     );
 
   return (
-    <div className="p-8">
-      <div className="bg-white shadow rounded-xl p-6  mb-8 flex items-center justify-center">
-        <div>
-            <div className="flex items-center justify-center mb-4">
-              <CircleUserRound className="w-28 h-28 text-blue-600" />
+    <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
+      {/* PROFILE CARD */}
+      <div className="bg-white shadow rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 flex justify-center">
+        <div className="text-center">
+          <div className="flex justify-center mb-3 sm:mb-4">
+            <CircleUserRound className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-1">
-           Assalomu alaykum, {user.name} {user.surname}
+
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-1">
+            Assalomu alaykum, {user.name} {user.surname}
           </h1>
-          <p className="text-gray-600 text-center">
-            Sizning o'qituvchi panelingizga xush kelibsiz!
+
+          <p className="text-sm sm:text-base text-gray-600">
+            Shaxsiy panelingizga xush kelibsiz!
           </p>
         </div>
-
       </div>
-      <div className="bg-gray-50 border rounded-lg p-6 text-center text-gray-600">
+
+      {/* INFO CARD */}
+      <div className="bg-gray-50 border rounded-lg p-4 sm:p-6 text-center text-sm sm:text-base text-gray-600">
         <p>
-          Chap tarafdagi <span className="font-medium text-blue-600">sinflar</span>{" "}
-          ro'yxatidan birini tanlang va o'quvchilar, fanlar hamda test
+          <span className="font-medium text-blue-600">Ro'yxat</span>{" "}
+          dagi sinflardan birini tanlang va o'quvchilar, fanlar hamda test
           natijalarini ko'ring.
         </p>
       </div>
