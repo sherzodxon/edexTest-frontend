@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import io, { Socket } from "socket.io-client";
 import api, { finishTest } from "../../../../lib/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,7 +42,6 @@ export default function StudentTestPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
   const [fullImage, setFullImage] = useState<string | null>(null);
 
 
@@ -146,33 +144,7 @@ const formatTime = (seconds: number) => {
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 };
 
-  useEffect(() => {
-    if (!id) return;
-
-    const socket = io("https://api.edexschool.uz/w", { transports: ["websocket"], reconnection: true });
-    socketRef.current = socket;
-
-    const student = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = student?.id;
-    const name = student?.name ?? student?.fullName ?? "NoName";
-    const surname = student?.surname ?? "";
-
-    socket.on("connect", () => {
-      if (userId) {
-        socket.emit("joinTest", { userId, name, surname, testId: Number(id), role: "student" });
-      }
-    });
-
-    const handleBeforeUnload = () => {
-      if (userId) socket.emit("leaveTest", { userId, testId: Number(id) });
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      socket.disconnect();
-    };
-  }, [id]);
+  ;
 
   if (!test) return <p className="p-6">Yuklanmoqda...</p>;
 

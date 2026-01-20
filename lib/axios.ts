@@ -91,7 +91,7 @@ export const createTest = (formData : FormData) => api.post("/tests", formData, 
         "Content-Type": "multipart/form-data"
     }
 });
-export const getActiveStudents = (id : number) => api.get(`/tests/${id}/active-students`);
+
 
 export const getTestResults = (id : number) => api.get(`/tests/${id}/results`);
 
