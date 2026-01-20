@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import Link from "next/link";
 
-// 🧩 Recharts komponentlari
 import {
   LineChart,
   Line,
@@ -75,14 +74,16 @@ export default function SubjectTestsPage() {
   const now = new Date();
 
   return (
-    <div className="p-8 space-y-6">
-      <h1 className="text-2xl font-bold flex gap-2 items-center text-gray-800">
-        <Book /> {subject.name} ({subject.grade?.name})
-      </h1>
+    <div className="p-4 pt-6 sm:p-6 lg:p-8 space-y-6">
+   <h1 className="text-lg sm:text-xl lg:text-2xl font-bold flex gap-2 items-center text-gray-800">
+  <Book className="w-5 h-5 sm:w-6 sm:h-6" />
+  {subject.name} ({subject.grade?.name})
+</h1>
+
 
       {!notResult && results.length > 0 ? (
-        <div className="bg-white p-4 border rounded-lg bg-white shadow-sm">
-         <ResponsiveContainer width="100%" height={300} className="p-2">
+        <div className="bg-white p-3 sm:p-4 border rounded-lg shadow-sm">
+         <ResponsiveContainer width="100%" height={300} className="sm:h-[300px]">
             <LineChart data={results} >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis hide dataKey="testName" />
@@ -121,7 +122,10 @@ export default function SubjectTestsPage() {
       )}
 
       {subject.tests?.length === 0 ? (
-        <p className="text-gray-500">Bu fan uchun hali testlar mavjud emas.</p>
+       <div className="text-gray-500  text-center text-sm sm:text-base">
+  Hozircha bu fan bo'yicha natijalar mavjud emas.
+</div>
+
       ) : (
         <ul className="space-y-4">
           {subject.tests?.map((test: any) => {
@@ -136,30 +140,26 @@ export default function SubjectTestsPage() {
             const score = userTest?.score;
 
             return (
-              <li
-                key={test.id}
-                className={`border p-4 rounded-lg bg-white shadow-sm ${
-                  isActive
-                    ? "border-blue-500"
-                    : isExpired
-                    ? "border-gray-400 opacity-70"
-                    : "border-green-400"
-                }`}
-              >
-                <div className="flex justify-between items-center">
+             <li
+  key={test.id}
+  className={`border p-3 sm:p-4 rounded-lg bg-white shadow-sm ${
+    isActive
+      ? "border-blue-500"
+      : isExpired
+      ? "border-gray-400 opacity-70"
+      : "border-green-400"
+  }`}
+>
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
                   <div>
                     <p className="font-semibold text-gray-800 mb-2">{test.title}</p>
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <AlarmClockMinus /> {start.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}{" "}
-                      -{" "}
-                      {end.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    <p className="text-sm text-gray-500 flex flex-wrap items-center gap-2">
+  <AlarmClockMinus className="w-4 h-4" />
+  {start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -
+  {end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+</p>
+
 
                     {finished && (
                       <p className="mt-1 text-sm text-green-600 flex gap-2 items-center">
@@ -184,27 +184,43 @@ export default function SubjectTestsPage() {
                         onClick={() =>
                           router.push(`/student/tests/${test.id}/result`)
                         }
-                        className="flex gap-2 px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800  flex items-center justify-center gap-2
+  px-3 py-2
+  text-sm
+  rounded-lg
+  w-full sm:w-auto"
                       >
                         <ChartPie /> Natijani ko'rish
                       </button>
                     ) : isActive ? (
                       <Link
                         href={`/student/tests/${test.id}`}
-                        className="flex gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                        className="bg-blue-600 hover:bg-blue-700 text-white  flex items-center justify-center gap-2
+  px-3 py-2
+  text-sm
+  rounded-lg
+  w-full sm:w-auto"
                       >
                         <CirclePlay /> Testni boshlash
                       </Link>
                     ) : isUpcoming ? (
                       <button
                         disabled
-                        className="flex gap-2 px-3 py-2 bg-yellow-400 text-white rounded-lg cursor-not-allowed"
+                        className="bg-yellow-400 text-white cursor-not-allowed flex items-center justify-center gap-2
+  px-3 py-2
+  text-sm
+  rounded-lg
+  w-full sm:w-auto"
                       >
                         <AlarmClock />  Hali boshlanmagan
                       </button>
                     ) : (
                       <Link
-                        className="flex gap-2 px-3 py-2 bg-green-800 text-white rounded-lg cursor-pointer"
+                        className="bg-green-800 text-white cursor-pointer flex items-center justify-center gap-2
+  px-3 py-2
+  text-sm
+  rounded-lg
+  w-full sm:w-auto"
                         href={`/student/tests/${test.id}`}
                       >
                         <Eye />Ko'rish

@@ -175,7 +175,7 @@ export default function GradeDetailsPage() {
             ) : (
               <ul className="flex flex-col gap-3">
                 {students.map((s) => (
-                  <li
+                  <li key={s.id} onClick={() => handleShowStudentResults(s)}
   className={`flex items-center gap-2 border p-2 rounded-md text-xs sm:text-sm cursor-pointer hover:bg-blue-50 transition w-full ${
     !selectedSubject && "opacity-60 cursor-not-allowed"
   }`}

@@ -198,7 +198,7 @@ export default function CreateTestPage() {
                         const optEl = document.getElementById(optId);
                         if (optEl && !optEl.querySelector("math-field")) {
                             const mfOpt = new(window as any).MathfieldElement();
-                            mfOpt.className = "w-full border rounded-lg px-3 py-1 bg-white min-h-[40px] focus-within:ring-2 rin" +
+                            mfOpt.className = "w-full border rounded-lg px-3 py-1 bg-white min-h-[36px] sm:min-h-[40px] text-sm sm:text-base focus-within:ring-2 ring-blue-300 transition" +
                                     "g-blue-300 transition";
                             mfOpt.value = q.options[optIndex] || "";
                             mfOpt.placeholder = `Variant ${optIndex + 1}`;
@@ -336,15 +336,15 @@ export default function CreateTestPage() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 pb-32">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+       <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-4 pb-32">
+           <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
                 <BadgeQuestionMark/>
                 Yangi test yaratish
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <Card className="p-4 space-y-4 bg-[#a7d495]">
-                     <div className="grid grid-cols-1 md:grid-cols-2 m-0 gap-4">
+                <Card className="p-3 sm:p-4 space-y-3 sm:space-y-4 bg-[#a7d495]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                        <input
                         type="text"
                         value={title}
@@ -352,20 +352,32 @@ export default function CreateTestPage() {
                         required
                         className="w-full border p-2 rounded-lg"
                         placeholder="Test nomi"/>
-                    <select
-                        value={selectedGrade || ""}
-                        onChange={(e) => setSelectedGrade(Number(e.target.value))}
-                        required
-                        className="w-full border p-2 rounded-lg">
-                        <option value="" disabled>
-                            Sinf tanlang
-                        </option>
-                        {grades.map((g) => (
-                            <option key={g.id} value={g.id}>
-                                {g.name}
-                            </option>
-                        ))}
-                    </select>
+                        
+                  <select
+  value={selectedGrade || ""}
+  onChange={(e) => setSelectedGrade(Number(e.target.value))}
+  required
+  className="
+    w-full
+    border
+    p-2 sm:p-3
+    rounded-lg
+    text-sm sm:text-base
+    focus:outline-none
+    focus:ring-2
+    focus:ring-blue-400
+  "
+>
+  <option value="" disabled>
+    Sinf tanlang
+  </option>
+  {grades.map((g) => (
+    <option key={g.id} value={g.id}>
+      {g.name}
+    </option>
+  ))}
+</select>
+
                      </div>
                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -376,7 +388,7 @@ export default function CreateTestPage() {
                             ...flatpickrOptions,
                             maxDate: endTime
                         }}
-                            className="w-full border p-2 rounded-lg"
+                           className="w-full border p-2 sm:p-3 rounded-lg text-sm sm:text-base"
                             placeholder="Boshlanish vaqtini tanlang"/>
 
                         <Flatpickr
@@ -386,7 +398,7 @@ export default function CreateTestPage() {
                             ...flatpickrOptions,
                             minDate: startTime || "today"
                         }}
-                            className="w-full border p-2 rounded-lg"
+                          className="w-full border p-2 sm:p-3 rounded-lg text-sm sm:text-base"
                             placeholder="Tugash vaqtini tanlang"/>
 
                     </div>
@@ -419,7 +431,7 @@ export default function CreateTestPage() {
                                 .map((_, optIndex) => (
                                     <div key={optIndex} className="relative border rounded-lg p-2 bg-gray-50">
 
-                                        <label className="flex items-center gap-2 cursor-pointer">
+                                       <label className="flex items-center gap-2 text-sm sm:text-base cursor-pointer">
                                             <input
                                                 type="radio"
                                                 className="sr-only"
@@ -435,7 +447,8 @@ export default function CreateTestPage() {
                                                 className={`w-5 h-5 flex items-center justify-center rounded-full border-2 transition-colors ${q.correctIndex === optIndex
                                                 ? "border-blue-500 bg-blue-500"
                                                 : "border-gray-300 bg-white"}`}>
-                                                {q.correctIndex === optIndex && (<CheckLine className="w-3 h-3 text-white"/>)}
+                                                {q.correctIndex === optIndex && (<CheckLine className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+)}
                                             </span>
                                             <span className="select-none">Variant {optIndex + 1}</span>
                                         </label>
@@ -448,19 +461,23 @@ export default function CreateTestPage() {
                 ))}
 
                 <Button
-                    type="button"
-                    onClick={addQuestion}
-                    variant="outline"
-                    className="ml-auto flex items-center gap-2">
+  type="button"
+  onClick={addQuestion}
+  variant="outline"
+  className="w-full sm:w-auto sm:ml-auto flex items-center justify-center gap-2"
+>
+
                     <Plus/>
                     Yangi savol qo'shish
                 </Button>
 
                 <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="bg-yellow-600 cursor-pointer p-2 px-4 mx-auto rounded-lg border flex items-center gap-2">
+                   <button
+  type="submit"
+  disabled={loading}
+  className="bg-yellow-600 w-full sm:w-auto p-3 px-6 mx-auto rounded-lg border flex items-center justify-center gap-2 text-sm sm:text-base"
+>
+
                         {loading
                             ? <Loader/>
                             : <HardDriveUpload/>}
@@ -474,7 +491,8 @@ export default function CreateTestPage() {
             <button
                 type="button"
                 onClick={() => setIsArabicPanelOpen(!isArabicPanelOpen)}
-                className="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 z-50 flex items-center gap-2  cursor-pointer">
+                className="fixed bottom-4 right-4 bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-lg z-50 flex items-center gap-2 text-sm sm:text-base"
+>
                 <Languages className="w-4 h-4"/> {isArabicPanelOpen
                     ? "Yopish"
                     : "Ochish"}
@@ -482,7 +500,9 @@ export default function CreateTestPage() {
 
             {isArabicPanelOpen && (
                 <div
-                    className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-xl p-2 flex flex-wrap gap-2 z-50">
+                 className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-xl p-2 max-w-[95vw] flex flex-wrap gap-2 z-50"
+>
+
                     {arabicKeyboard.map((l, i) => (
                         <button
                             key={i}
@@ -497,7 +517,8 @@ export default function CreateTestPage() {
                                 mf.focus();
                             }
                         }}
-                            className="px-3 py-1 bg-gray-200 hover:bg-blue-300 rounded text-lg cursor-pointer">
+                           className="px-2 py-1 sm:px-3 sm:py-1 bg-gray-200 hover:bg-blue-300 rounded text-base sm:text-lg"
+>
                             {l}
                         </button>
                     ))}

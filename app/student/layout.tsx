@@ -20,9 +20,7 @@ export default function StudentLayout({
       router.replace("/login");
       return;
     }
-
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
+    setUser(JSON.parse(storedUser));
   }, [router]);
 
   const handleLogout = () => {
@@ -38,28 +36,43 @@ export default function StudentLayout({
     );
 
   return (
-    <div >
-      <header className="bg-white fixed w-full z-50">
-        <div className="shadow flex items-center justify-between px-6 py-4">
-       <Link href="/student" className="text-xl flex items-center font-bold text-green-600">
-          <EdexLogo className="w-10 h-10"/> EdEx
-        </Link>
-        
-        <div className="flex items-center gap-4 text-gray-700">
-          <span className="flex items-center gap-2 px-3 py-2 font-medium">
-            <CircleUserRound /> {user.name} {user.surname}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm transition cursor-pointer"
+    <div>
+      <header className="bg-white fixed w-full z-50 shadow">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+          {/* Logo */}
+          <Link
+            href="/student"
+            className="flex items-center text-green-600 font-bold"
           >
-            <LogOut/>
-          </button>
+            <EdexLogo className="w-8 h-8 sm:w-10 sm:h-10" />
+            {/* Matn faqat sm+ */}
+            <span className="hidden sm:inline ml-2 text-lg sm:text-xl">
+              EdEx
+            </span>
+          </Link>
+
+          {/* User info + Logout */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Foydalanuvchi nomi faqat sm+ */}
+            <span className="flex items-center gap-2 px-3 py-1 font-medium sm:text-lg text-sm">
+              <CircleUserRound className="w-5 h-5" />
+              {user.name} {user.surname}
+            </span>
+
+           
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-1.5 rounded-lg transition"
+            >
+              <LogOut className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline">Chiqish</span>
+            </button>
+          </div>
         </div>
-        </div>
-        
       </header>
-      <main className="pt-14">{children}</main>
+
+      {/* Main content */}
+      <main className="pt-20 px-4 sm:px-6">{children}</main>
     </div>
   );
 }

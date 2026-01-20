@@ -48,7 +48,7 @@ export default function StudentPage() {
     return <div className="p-6 text-gray-500 flex gap-2 items-center"> <ClockArrowDown /> Yuklanmoqda...</div>;
 
   if (error)
-    return <div className="p-6 text-red-600 font-semibold">⚠️ {error}</div>;
+    return <div className="p-6 text-red-600 font-semibold">{error}</div>;
 
   if (!user)
     return <div className="p-6 text-gray-500">Foydalanuvchi topilmadi.</div>;
@@ -60,7 +60,6 @@ export default function StudentPage() {
         </h2>
      
 
-      {/* 🔹 Asosiy qism */}
       <main className="mt-6">
         {subjects.length === 0 ? (
           <div className="text-gray-600">
