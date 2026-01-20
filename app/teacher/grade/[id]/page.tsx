@@ -29,6 +29,7 @@ import {
   ChartBar,
   UsersRound,
   UserRound,
+  ClockArrowDown,
 } from "lucide-react";
 import { Dialog } from "@headlessui/react";
 import toast from "react-hot-toast";
@@ -113,7 +114,13 @@ export default function GradeDetailsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-gray-500">Yuklanmoqda...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">
+  <div className="flex items-center gap-2">
+    <ClockArrowDown className="w-5 h-5" />
+    <span>Yuklanmoqda...</span>
+  </div>
+</div>
+;
   if (error)
     return (
       <div className="text-red-500 text-center">

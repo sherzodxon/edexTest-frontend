@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import { CheckCircle, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle, CheckCircle2, ClockArrowDown, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface Option {
@@ -146,27 +146,33 @@ const formatTime = (seconds: number) => {
 
   ;
 
-  if (!test) return <p className="p-6">Yuklanmoqda...</p>;
+  if (!test) return<div className="min-h-screen flex items-center justify-center text-gray-500">
+  <div className="flex items-center gap-2">
+    <ClockArrowDown className="w-5 h-5" />
+    <span>Yuklanmoqda...</span>
+  </div>
+</div>
+;
 
   if (test.userFinished) {
     const correctCount = test.questions.filter((q) => q.isCorrect).length;
     const total = test.questions.length;
 
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-2 sm:p-4 pt-6 max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-2">{test.title}</h1>
         <p className="text-gray-600 mb-4">Fan: {test.subject}</p>
 
         <div className="bg-green-50 border flex gap-2 border-green-300 text-green-700 p-4 rounded-xl mb-6">
           <CheckCircle />
-          Test yakunlandi! Sizning natijangiz:{" "}
+          Sizning natijangiz:{" "}
           <span className="font-bold">
             {test.userScore ?? ((correctCount / total) * 100).toFixed(0)}%
           </span>{" "}
           ({correctCount} / {total})
         </div>
-
-        <table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow text-center">
+<div className="sm:block">
+<table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow text-center">
           <thead className="bg-gray-100">
             <tr>
               <th className="border px-4 py-2 text-center">#</th>
@@ -198,21 +204,34 @@ const formatTime = (seconds: number) => {
             ))}
           </tbody>
         </table>
+        
+</div>
+
+        
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">{test.title}</h1>
-      <p className="text-gray-600 mb-4">Fan: {test.subject}</p>
-     <p className="text-red-500 font-semibold mb-6">
-       Qolgan vaqt: {formatTime(timeLeft)}
+    <div className="px-3 sm:px-6 py-4 max-w-3xl mx-auto">
+<h1 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-4">
+  {test.title}
+</h1>
+<p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
+  Fan: {test.subject}
 </p>
+
+   <div className="sticky top-16 z-40 bg-white py-2 mb-4 border-b">
+  <p className="text-red-500 font-semibold text-sm sm:text-base text-center">
+    Qolgan vaqt: {formatTime(timeLeft)}
+  </p>
+</div>
+
+
       {test.questions.map((q, idx) => (
         <Card key={q.id} className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2 font-semibold">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex gap-2 mb-3 font-semibold text-sm sm:text-base">
               <span>{idx + 1}.</span>
               <div className={`${/[\u0600-\u06FF]/.test(q.text) ? "text-right" : "text-left"}`}>
                <BlockMath math={q.text?.replace(/ /g, "\\ ") || ""} />
@@ -223,18 +242,25 @@ const formatTime = (seconds: number) => {
                 <img
                 src={q.img}
                  alt="question"
-                 className="w-48 mb-3 rounded-lg border cursor-pointer hover:opacity-80 transition"
+                   className="w-full sm:w-56 mb-3 rounded-lg border cursor-pointer"
                   onClick={() => setFullImage(q.img??null)}
                />
               )}
 
 
-            <div className="grid gap-2">
+           <div className="grid gap-2 sm:gap-3">
               {q.options.map((opt) => (
                 <Button
                   key={opt.id}
                   variant={answers[q.id] === opt.text ? "default" : "outline"}
-                  className={`${/[\u0600-\u06FF]/.test(q.text) ? "text-right" : "text-left"} cursor-pointer selected:bg-blue-600 px-2 py-0`}
+                 className={`
+  ${/[\u0600-\u06FF]/.test(q.text) ? "text-right" : "text-left"}
+  w-full
+  justify-start
+  text-sm sm:text-base
+  px-3 py-3 sm:py-2
+`}
+
                   onClick={() => handleSelect(q.id, opt.text)}
                 >
                  <BlockMath math={opt.text || ""}  />
@@ -249,7 +275,17 @@ const formatTime = (seconds: number) => {
         variant="default"
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="mt-4 w-full bg-blue-500 text-white cursor-pointer"
+ className="
+    mt-6
+    w-full
+    bg-blue-600
+    text-white
+    py-3
+    text-base
+    sm:text-lg
+    sticky
+    bottom-3
+  "
       >
         {isSubmitting ? "Yuborilmoqda..." : "Testni yakunlash"}
       </Button>
@@ -260,7 +296,7 @@ const formatTime = (seconds: number) => {
   >
     <img
       src={fullImage}
-      className="max-w-[90%] max-h-[90%] rounded-lg shadow-xl"
+      className="max-w-[95%] max-h-[85%] sm:max-w-[90%] sm:max-h-[90%]"
       onClick={(e) => e.stopPropagation()}
     />
 
@@ -268,7 +304,7 @@ const formatTime = (seconds: number) => {
       onClick={() => setFullImage(null)}
       className="absolute top-5 right-5 text-white text-3xl font-bold"
     >
-      ×
+      x
     </button>
   </div>
 )}

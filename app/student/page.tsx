@@ -54,7 +54,7 @@ export default function StudentPage() {
     return <div className="p-6 text-gray-500">Foydalanuvchi topilmadi.</div>;
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50">
+    <div className="p-4 pt-6 sm:p-8 min-h-screen">
         <h2 className="text-2xl font-bold text-gray-800 flex gap-2">
           Mening fanlarim
         </h2>

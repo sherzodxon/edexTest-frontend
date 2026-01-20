@@ -30,30 +30,34 @@ export default function StudentLayout({
 
   if (!user)
     return (
-      <div className="flex gap-2 items-center justify-center h-screen text-gray-500">
-        <ClockArrowDown /> Yuklanmoqda...
-      </div>
+   <div className="min-h-screen flex items-center justify-center text-gray-500">
+  <div className="flex items-center gap-2">
+    <ClockArrowDown className="w-5 h-5" />
+    <span>Yuklanmoqda...</span>
+  </div>
+</div>
+
     );
 
   return (
     <div>
       <header className="bg-white fixed w-full z-50 shadow">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-          {/* Logo */}
+     
           <Link
             href="/student"
             className="flex items-center text-green-600 font-bold"
           >
             <EdexLogo className="w-8 h-8 sm:w-10 sm:h-10" />
-            {/* Matn faqat sm+ */}
+          
             <span className="hidden sm:inline ml-2 text-lg sm:text-xl">
               EdEx
             </span>
           </Link>
 
-          {/* User info + Logout */}
+       
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Foydalanuvchi nomi faqat sm+ */}
+
             <span className="flex items-center gap-2 px-3 py-1 font-medium sm:text-lg text-sm">
               <CircleUserRound className="w-5 h-5" />
               {user.name} {user.surname}
@@ -72,7 +76,7 @@ export default function StudentLayout({
       </header>
 
       {/* Main content */}
-      <main className="pt-20 px-4 sm:px-6">{children}</main>
+      <main className="pt-10 sm:pt-20 px-0 sm:px-6">{children}</main>
     </div>
   );
 }

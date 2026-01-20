@@ -60,7 +60,13 @@ export default function SubjectTestsPage() {
   }, [subjectId]);
 
   if (loading) {
-    return <div className="p-8 text-gray-500 text-center flex gap-2 items-center"> <ClockArrowDown /> Yuklanmoqda...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">
+  <div className="flex items-center gap-2">
+    <ClockArrowDown className="w-5 h-5" />
+    <span>Yuklanmoqda...</span>
+  </div>
+</div>
+
   }
 
   if (error) {

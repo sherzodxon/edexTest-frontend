@@ -126,7 +126,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
             <EdexLogo className="w-10 h-10 text-green-600" />
          
         </header>
-        <section className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</section>
+        <section className="flex-1 overflow-y-auto p-2 sm:p-6">{children}</section>
       </main>
     </div>
   );

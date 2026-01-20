@@ -47,7 +47,13 @@ export default function TestDetailsPage() {
   
 }, [test]);
 
-  if (!test) return <p className="p-8flex gap-2 items-center"> <ClockArrowDown />Yuklanmoqda...</p>;
+  if (!test) return <div className="min-h-screen flex items-center justify-center text-gray-500">
+  <div className="flex items-center gap-2">
+    <ClockArrowDown className="w-5 h-5" />
+    <span>Yuklanmoqda...</span>
+  </div>
+</div>
+;
   
   const now = new Date();
   const isOngoing = test.endTime && new Date(test.endTime) > now;

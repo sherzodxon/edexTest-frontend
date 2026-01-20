@@ -237,7 +237,7 @@ const handleEdit = (user: any) => {
   onClick={handleAdd}
 >
   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-  <span className="hidden sm:inline">Yangi sinf qo'shish</span>
+  <span className="hidden sm:inline">Yangi foydalanuvchi qo'shish</span>
 </button>
 
       </div>

@@ -95,7 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <EdexLogo className="w-10 h-10" />
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-950">
+        <main className="flex-1 sm:p-4 p-2 overflow-y-auto bg-gray-950">
           {children}
         </main>
       </div>
