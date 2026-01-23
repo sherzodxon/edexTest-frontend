@@ -52,6 +52,7 @@ export default function GradeDetailsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [studentResults, setStudentResults] = useState<any>(null);
+  const reversedChartData = [...chartData].reverse();
 
   
   useEffect(() => {
@@ -207,7 +208,7 @@ export default function GradeDetailsPage() {
     <div className="max-w-full overflow-x-auto ">
       <div>
         <ResponsiveContainer width="100%" height={260} className="sm:h-[300px]">
-          <LineChart data={chartData}>
+          <LineChart data={reversedChartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis hide dataKey="testName" />
             <YAxis domain={[0, 100]} />
