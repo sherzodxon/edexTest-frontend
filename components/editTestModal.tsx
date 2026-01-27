@@ -5,7 +5,62 @@ import Flatpickr from "react-flatpickr";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
-import { Uzbek } from "@/app/teacher/tests/create/page"; 
+import { CustomLocale } from "flatpickr/dist/types/locale";
+const Uzbek : CustomLocale = {
+    weekdays: {
+        shorthand: [
+            "Yak",
+            "Du",
+            "Se",
+            "Ch",
+            "Pa",
+            "Ju",
+            "Sh"
+        ],
+        longhand: [
+            "Yakshanba",
+            "Dushanba",
+            "Seshanba",
+            "Chorshanba",
+            "Payshanba",
+            "Juma",
+            "Shanba"
+        ]
+    },
+    months: {
+        shorthand: [
+            "Yan",
+            "Fev",
+            "Mar",
+            "Apr",
+            "May",
+            "Iyn",
+            "Iyl",
+            "Avg",
+            "Sen",
+            "Okt",
+            "Noy",
+            "Dek"
+        ],
+        longhand: [
+            "Yanvar",
+            "Fevral",
+            "Mart",
+            "Aprel",
+            "May",
+            "Iyun",
+            "Iyul",
+            "Avgust",
+            "Sentabr",
+            "Oktabr",
+            "Noyabr",
+            "Dekabr"
+        ]
+    },
+    firstDayOfWeek: 1,
+    rangeSeparator: " dan ",
+    time_24hr: true
+};
 
 
 export default function EditTestTimeModal({

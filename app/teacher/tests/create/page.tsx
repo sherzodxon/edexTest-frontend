@@ -22,8 +22,7 @@ import {
 import {Card} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import toast from "react-hot-toast";
-
-export const Uzbek : CustomLocale = {
+const Uzbek : CustomLocale = {
     weekdays: {
         shorthand: [
             "Yak",
