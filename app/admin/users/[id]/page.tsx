@@ -12,7 +12,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import { CircleUser } from "lucide-react";
+import { ArrowLeft, CircleUser } from "lucide-react";
 
 export default function UserDashboardPage() {
   const router = useRouter();
@@ -123,6 +123,13 @@ export default function UserDashboardPage() {
 
   return (
     <div className="min-h-screen">
+       <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-300 hover:text-white cursor-pointer mb-6"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Orqaga
+            </button>
       <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
       <CircleUser size={28} className="text-[#C3B091]" />  {user.name} {user.surname}
       </h1>

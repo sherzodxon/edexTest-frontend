@@ -23,7 +23,7 @@ import {Card} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import toast from "react-hot-toast";
 
-const Uzbek : CustomLocale = {
+export const Uzbek : CustomLocale = {
     weekdays: {
         shorthand: [
             "Yak",
@@ -298,8 +298,8 @@ export default function CreateTestPage() {
         const payload = {
             title,
             subjectId,
-            startTime,
-            endTime,
+            startTime: startTime ? startTime.toISOString() : null,
+            endTime: endTime ? endTime.toISOString() : null,
             questions: questions.map((q, i) => ({
                 text: q.text,
                 imgKey: q.image
