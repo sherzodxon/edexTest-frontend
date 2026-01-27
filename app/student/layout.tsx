@@ -5,11 +5,14 @@ import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {CircleUserRound, ClockArrowDown, LogOut} from "lucide-react";
 import EdexLogo from "@/components/ui/logo";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/authSlice";
 
 export default function StudentLayout({children} : {
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const dispatch = useDispatch();
     const [user,
         setUser] = useState < any > (null);
 
@@ -24,6 +27,7 @@ export default function StudentLayout({children} : {
 
     const handleLogout = () => {
         localStorage.removeItem("user");
+        dispatch(logout());
         router.replace("/login");
     };
 
@@ -55,8 +59,8 @@ export default function StudentLayout({children} : {
 
                         <span
                             className="flex items-center gap-2 px-3 py-1 font-medium sm:text-lg text-sm">
-                            <CircleUserRound className="w-5 h-5"/> {user.name}
-                            {user.surname}
+                            <CircleUserRound className="w-5 h-5"/>{`${user.name} 
+                            ${user.surname}`}
                         </span>
 
                         <button
@@ -68,7 +72,7 @@ export default function StudentLayout({children} : {
                     </div>
                 </div>
             </header>
-            <main className="pt-10 sm:pt-20 px-0 sm:px-6">{children}</main>
+            <main className="pt-10 sm:pt-16 px-0 sm:px-6">{children}</main>
         </div>
     );
 }
