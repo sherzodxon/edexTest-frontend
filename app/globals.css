@@ -123,3 +123,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+.katex-display {
+  display: block;
+  white-space: normal;
+}
+
+.katex {
+  white-space: normal;
+}
+
+.katex .mord,
+.katex .mbin,
+.katex .mrel,
+.katex .mopen,
+.katex .mclose,
+.katex .mpunct {
+  display: inline;
+  white-space: normal;
+}
+.katex .base {
+  display: inline !important;
+  white-space: normal !important;
+}
+
+
+

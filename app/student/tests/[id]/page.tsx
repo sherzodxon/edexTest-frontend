@@ -250,7 +250,7 @@ export default function StudentTestPage() {
     }
 
     return (
-        <div className="px-3 sm:px-6 py-4 max-w-3xl mx-auto">
+        <div className="px-3 sm:px-6 py-4  mx-auto">
             <h1 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-4">
                 {test.title}
             </h1>
@@ -267,9 +267,9 @@ export default function StudentTestPage() {
             {test
                 .questions
                 .map((q, idx) => (
-                    <Card key={q.id} className="mb-4">
-                        <CardContent className="p-3 sm:p-4">
-                            <div className="flex gap-2 mb-3 font-semibold text-sm sm:text-base">
+                    <Card key={q.id} className="mb-4 w-6xl mx-auto">
+                        <CardContent className="p-3 sm:p-4 whitespace-normal">
+                            <div className="gap-2 text-cyan-950 mb-3 font-semibold text-sm sm:text-base">
                                 <span>{idx + 1}.</span>
                                 <div
                                     className={`${ / [\u0600 - \u06FF] /.test(q.text)
@@ -296,39 +296,42 @@ export default function StudentTestPage() {
                                             variant={answers[q.id] === opt.text
                                             ? "default"
                                             : "outline"}
-                                            className={`w-full justify-start cursor-pointer sm:text-base p-0 ${answers[q.id] === opt.text
-                                            ? "bg-blue-100 hover:bg-blue-200 border border-blue-700 text-blue-800"
+                                            className={`w-full justify-start cursor-pointer hover:bg-blue-100 sm:text-base p-0 text-slate-500 ${answers[q.id] === opt.text
+                                            ? "bg-blue-200 border border-blue-700 text-blue-700"
                                             : ""} `}
                                             onClick={() => handleSelect(q.id, opt.text)}>
-                                            <BlockMath
-                                                math={opt.text
-                                                ?.replace(/ /g, "\\ ") || ""}/>
+                                            <div className="font-small">
+                                                <BlockMath
+                                                    math={opt.text
+                                                    ?.replace(/ /g, "\\ ") || ""}/></div>
                                         </Button>
                                     ))}
                             </div>
                         </CardContent>
                     </Card>
                 ))}
-
-            <Button
-                variant="default"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="
+            <div className="flex justify-center">
+                <Button
+                    variant="default"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="
                             mt-6
-                            w-full
-                            bg-blue-600
+                            cursor-pointer
+                            bg-lime-600
                            text-white
                            py-3
                            text-base
                            sm:text-lg
-                           sticky
+                           text-center
                            bottom-3
                           ">
-                {isSubmitting
-                    ? "Yuborilmoqda..."
-                    : "Testni yakunlash"}
-            </Button>
+                    {isSubmitting
+                        ? "Yuborilmoqda..."
+                        : "Testni yakunlash"}
+                </Button>
+            </div>
+
             {fullImage && (
                 <div
                     className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
