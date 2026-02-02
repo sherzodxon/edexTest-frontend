@@ -4,15 +4,10 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api, { getTestsBySubject } from "@/lib/axios";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from "recharts";
-import { ArrowLeft, CircleUser } from "lucide-react";
+import { ArrowLeft, CircleUser, TrendingUp } from "lucide-react";
 
 export default function UserDashboardPage() {
   const router = useRouter();
@@ -20,11 +15,11 @@ export default function UserDashboardPage() {
   const userId = params?.id;
 
   const [user, setUser] = useState<any>(null);
-  const [grades, setGrades] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<any | null>(null);
   const [tests, setTests] = useState<any[]>([]);
-  const [average, setAverage] = useState<number | null>(null);
+  const [radarData, setRadarData] = useState<any[]>([]);
+  const [average, setAverage] = useState<number | null>(null); // Jami natija uchun
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,158 +31,195 @@ export default function UserDashboardPage() {
       return;
     }
 
-    const fetchUserData = async () => {
+    const fetchInitialData = async () => {
       try {
+        setLoading(true);
         const resUser = await api.get(`/users/${userId}`);
-        setUser(resUser.data);
+        const userData = resUser.data;
+        setUser(userData);
 
-        if (resUser.data.role === "TEACHER") {
-          setGrades(resUser.data.teacherGrades || []);
-          setSubjects(resUser.data.teacherSubjects || []);
+        let userSubjects = [];
+        if (userData.role === "TEACHER") {
+          userSubjects = userData.teacherSubjects || [];
+        } else {
+          const resSubj = await api.get(`/subjects/grade/${userData.gradeId}`);
+          userSubjects = resSubj.data;
         }
+        setSubjects(userSubjects);
 
-        if (resUser.data.role === "STUDENT") {
-          const gradeId = resUser.data.gradeId;
-          if (!gradeId) return setError("Foydalanuvchi sinfi topilmadi");
-          const resSubj = await api.get(`/subjects/grade/${gradeId}`);
-          setSubjects(resSubj.data);
-        }
+        const resRadar = await api.get(`/users/user-analysis/${userId}`);
+        const formattedRadar = resRadar.data.labels.map((label: string, index: number) => ({
+          subject: label,
+          score: resRadar.data.dataset.data[index],
+        }));
+        setRadarData(formattedRadar);
       } catch (err) {
         console.error(err);
-        setError("Foydalanuvchini olishda xatolik");
+        setError("Ma'lumotlarni yuklashda xatolik");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchInitialData();
   }, [userId, token]);
 
   const handleSubjectClick = async (subject: any) => {
-  setSelectedSubject(subject);
-  setTests([]);
-  setAverage(null);
-  setError(null);
-
-  try {
-    const role = user?.role ?? "STUDENT";
-
-    const res = await getTestsBySubject(subject.id, "ADMIN");
-    const rawTests = Array.isArray(res?.data) ? res.data : res?.data.tests ?? [];
-    let testsData: any[] = [];
-
-    if (role === "STUDENT") {
-      testsData = rawTests.map((t: any) => ({
-        id: t.id,
-        name: t.title,
-        result: t.userTests?.find((ut: any) => ut.userId === user.id)?.score ?? 0,
-        finished: !!t.userTests?.find((ut: any) => ut.userId === user.id)?.finished,
-        startTime: t.startTime,
-        endTime: t.endTime,
-      }));
+    if (selectedSubject?.id === subject.id) {
+      setSelectedSubject(null);
+      setTests([]);
+      setAverage(null);
+      return;
     }
 
-    if (role === "TEACHER") {
-      testsData = rawTests.map((t: any) => {
-        const allScores = t.userTests?.map((ut: any) => ut.score ?? 0) ?? [];
-        const avg =
-          allScores.reduce((sum: number, score: number) => sum + score, 0) /
-          (allScores.length || 1);
+    setSelectedSubject(subject);
+    try {
+      const res = await getTestsBySubject(subject.id, "ADMIN"); 
+      const rawTests = Array.isArray(res?.data) ? res.data : res?.data.tests ?? [];
+      
+      let totalSum = 0;
+      const testsData = rawTests.map((t: any) => {
+        let score = 0;
+        if (user.role === "STUDENT") {
+          score = t.userTests?.find((ut: any) => ut.userId === Number(userId))?.score ?? 0;
+        } else {
+          const allScores = t.userTests?.map((ut: any) => ut.score ?? 0) ?? [];
+          score = allScores.length ? allScores.reduce((a: any, b: any) => a + b, 0) / allScores.length : 0;
+        }
+        totalSum += score;
         return {
           id: t.id,
           name: t.title,
-          result: avg,
-          startTime: t.startTime,
-          endTime: t.endTime,
+          result: score
         };
       });
 
-      const avgTotal =
-        testsData.reduce((sum, t) => sum + (t.result ?? 0), 0) /
-        (testsData.length || 1);
-      setAverage(avgTotal);
+      setTests(testsData);
+      setAverage(testsData.length > 0 ? totalSum / testsData.length : 0);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    setTests(testsData);
-  } catch (err: any) {
-    console.error("handleSubjectClick error:", err?.response ?? err);
-    const msg = err?.response?.data?.message || "Testlarni olishda xatolik";
-    setError(msg);
-  }
-};
-
-
-  if (loading) return <div className="p-6">Yuklanmoqda...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
-  if (!user) return <div className="p-6">Foydalanuvchi topilmadi</div>;
+  if (loading) return <div className="p-6 text-center text-gray-400 bg-[#0F172A] min-h-screen">Yuklanmoqda...</div>;
 
   return (
-    <div className="min-h-screen">
-       <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-gray-300 hover:text-white cursor-pointer mb-6"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Orqaga
-            </button>
-      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
-      <CircleUser size={28} className="text-[#C3B091]" />  {user.name} {user.surname}
+    <div className="min-h-screen p-4 sm:p-6 sm:py-0 text-gray-100">
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-gray-400 hover:text-white cursor-pointer mb-4 transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        Orqaga
+      </button>
+
+      <h1 className="text-2xl font-bold mb-4 flex items-center gap-2 text-white">
+        <CircleUser size={28} className="text-[#27a55d]" />
+        {user.name} {user.surname}
       </h1>
 
-      {subjects.length > 0 && (
-        <div className="mb-4 flex flex-wrap gap-2">
-          {subjects.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => handleSubjectClick(s)}
-              className={`px-4 py-2 rounded shadow text-black cursor-pointer ${
-                selectedSubject?.id === s.id
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
-      )}
-      {tests.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-2">Testlar</h2>
+      <div className="mb-4 flex flex-wrap gap-3">
+        {subjects.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => handleSubjectClick(s)}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border ${
+              selectedSubject?.id === s.id
+                ? "bg-[#27a55d] border-[#27a55d] text-white"
+                : "bg-[#0F172A] text-gray-400 border-gray-700 hover:border-[#27a55d] hover:text-[#27a55d]"
+            }`}
+          >
+            {s.name}
+          </button>
+        ))}
+      </div>
 
-          {average !== null && user.role === "TEACHER" && (
-            <div className="mb-4 font-semibold">
-              Ja'mi natija: {Math.floor(average)} %
+      <div className="bg-[#0F172A] p-6 rounded-2xl border border-gray-800 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+          <h2 className="text-sm text-gray-400 uppercase tracking-wider">
+            {selectedSubject ? `${selectedSubject.name} natijalari` : "Umumiy ko'rsatkichlar"}
+          </h2>
+          
+          {average !== null && (
+            <div className="flex items-center gap-2 bg-[#27a55d]/10 border border-[#27a55d]/20 px-4 py-1.5 rounded-full">
+              <TrendingUp size={16} className="text-[#27a55d]" />
+              <span className="text-sm font-bold text-[#27a55d]">
+                Ja'mi natija: {Math.floor(average)} %
+              </span>
             </div>
           )}
+        </div>
 
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={tests}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name"  hide className="z-index-100"/>
-              <YAxis domain={[0,100]} />
-              <Tooltip
-                  content={({ active, payload, label }) => {
+        {selectedSubject ? (
+          <div className="h-[400px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={tests}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+                <XAxis dataKey="name" hide />
+                <YAxis domain={[0, 100]} tick={{fill: '#94a3b8'}} stroke="#334155" />
+                <Tooltip
+                    content={({ active, payload, label }) => {
                    if (active && payload && payload.length) {
                     return (
-                   <div className="bg-white shadow-lg border rounded-md p-3 text-sm">
-                 <p className="font-semibold text-gray-700 mb-1">{label}</p>
-              {payload.map((entry, index) => (
-                <p key={index} className="text-gray-600">
-                 {user.role==="TEACHER"?"O'rtacha natija:":"Natija:"} <span className="font-bold text-blue-600">{Math.floor(entry.value)}%</span>
+                   <div className="bg-[#1E293B] border border-gray-700 shadow-2xl rounded-lg p-3 text-sm">
+                   <p className="font-semibold text-white mb-2 border-b border-gray-700 pb-1">{label}</p>
+                   {payload.map((entry, index) => (
+                  <p key={index} className="text-gray-300 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#27a55d]"></span>
+                  {user?.role === "TEACHER" ? "O'rtacha natija:" : "Natija:"} 
+                   <span className="font-bold text-[#27a55d]">{Math.floor(entry.value as number)}%</span>
                 </p>
-              ))}
-            </div>
-          );
-        }
-        return null;
-      }}
-    />
-              <Bar dataKey="result" fill="#4ade80" />
-            </BarChart>
-          </ResponsiveContainer>
+          ))}
         </div>
-      )}
+      );
+    }
+    return null;
+  }}
+/>
+                <Bar dataKey="result" fill="#27a55d" radius={[4, 4, 0, 0]} barSize={35} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-[450px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <PolarGrid stroke="#334155" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{fill: '#64748b'}} stroke="#334155" />
+                <Radar
+                  name="Natija"
+                  dataKey="score"
+                  stroke="#27a55d"
+                  fill="#27a55d"
+                  fillOpacity={0.5}
+                />
+               <Tooltip
+               content={({ active, payload }) => {
+               if (active && payload && payload.length) {
+               return (
+               <div className="bg-[#1E293B] border border-gray-700 shadow-2xl rounded-lg p-3 text-sm">
+               <p className="font-semibold text-white mb-1">
+               {payload[0].payload.subject} 
+               </p>
+               <div className="flex items-center gap-2 text-gray-300">
+               <span className="w-2 h-2 rounded-full bg-[#27a55d]"></span>
+               <span>Ko'rsatkich:</span>
+               <span className="font-bold text-[#27a55d]">
+               {Math.floor(payload[0].value as number)}%
+              </span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }}
+/>
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

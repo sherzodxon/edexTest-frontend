@@ -1,207 +1,236 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import {
-    Plus,
-    Search,
-    Edit,
-    Trash2,
-    X,
-    Layers
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  X,
+  Layers,
+  ChevronRight,
+  Hash
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useConfirmToast from "@/components/hooks/useConfirmToast";
 
 interface Grade {
-    id : number;
-    name : string;
+  id: number;
+  name: string;
 }
 
 export default function AdminGradesPage() {
-    const [grades,
-        setGrades] = useState < Grade[] > ([]);
-    const [filtered,
-        setFiltered] = useState < Grade[] > ([]);
-    const [query,
-        setQuery] = useState("");
-    const {showConfirm} = useConfirmToast();
-    const [showModal,
-        setShowModal] = useState(false);
-    const [editingGrade,
-        setEditingGrade] = useState < Grade | null > (null);
-    const [form,
-        setForm] = useState < {
-        name: string
-    } > ({name: ""});
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [query, setQuery] = useState("");
+  const { showConfirm } = useConfirmToast();
+  const [showModal, setShowModal] = useState(false);
+  const [editingGrade, setEditingGrade] = useState<Grade | null>(null);
+  const [form, setForm] = useState({ name: "" });
 
-    const fetchGrades = async() => {
-        try {
-            const res = await api.get("/grades");
-            setGrades(res.data);
-            setFiltered(res.data);
-        } catch (err) {
-            console.error(err);
-            toast.error("Sinf ma'lumotlarini olishda xatolik!")
-        }
-    };
+  const fetchGrades = async () => {
+    try {
+      const res = await api.get("/grades");
+      setGrades(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Sinf ma'lumotlarini olishda xatolik!");
+    }
+  };
 
-    useEffect(() => {
-        fetchGrades();
-    }, []);
+  useEffect(() => {
+    fetchGrades();
+  }, []);
 
-    useEffect(() => {
-        const q = query.toLowerCase();
-        setFiltered(grades.filter((g) => g.name.toLowerCase().includes(q)));
-    }, [query, grades]);
+  const filtered = grades.filter((g) =>
+    g.name.toLowerCase().includes(query.toLowerCase())
+  );
 
-    const handleAdd = () => {
-        setEditingGrade(null);
-        setForm({name: ""});
-        setShowModal(true);
-    };
+  const handleAdd = () => {
+    setEditingGrade(null);
+    setForm({ name: "" });
+    setShowModal(true);
+  };
 
-    const handleEdit = (grade : Grade) => {
-        setEditingGrade(grade);
-        setForm({name: grade.name});
-        setShowModal(true);
-    };
+  const handleEdit = (grade: Grade) => {
+    setEditingGrade(grade);
+    setForm({ name: grade.name });
+    setShowModal(true);
+  };
 
-    const handleDelete = async(id : number) => {
-        const ok = await showConfirm("Haqiqatan ham sinfni o'chirmoqchimisiz?");
-        if (!ok) 
-            return;
-        await api.delete(`/grades/${id}`);
-        toast.success("Sinf o'chirildi")
-        fetchGrades();
-    };
+  const handleDelete = async (id: number) => {
+    const ok = await showConfirm("Haqiqatan ham ushbu sinfni o'chirmoqchimisiz?");
+    if (!ok) return;
+    try {
+      await api.delete(`/grades/${id}`);
+      toast.success("Sinf muvaffaqiyatli o'chirildi");
+      fetchGrades();
+    } catch (err) {
+      toast.error("O'chirishda xatolik!");
+    }
+  };
 
-    const handleSubmit = async(e : React.FormEvent) => {
-        e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingGrade) {
+        await api.put(`/grades/${editingGrade.id}`, form);
+        toast.success("Sinf yangilandi");
+      } else {
+        await api.post("/grades", form);
+        toast.success("Yangi sinf yaratildi");
+      }
+      setShowModal(false);
+      fetchGrades();
+    } catch (err) {
+      toast.error("Saqlashda xatolik!");
+    }
+  };
 
-        try {
-            if (editingGrade) {
-                await api.put(`/grades/${editingGrade.id}`, form);
-                toast.success("Sinf muvafaqqiyatli o'zgartildi")
-            } else {
-                await api.post("/grades", form);
-                toast.success("Sinf muvafaqqiyatli yaratildi")
-            }
+  return (
+    <div className="min-h-screen text-gray-100">
+      {/* Scrollbar Customization */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0F172A; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+      `}</style>
 
-            setShowModal(false);
-            setEditingGrade(null);
-            setForm({name: ""});
-            fetchGrades();
-
-        } catch (err) {
-            console.error(err);
-            toast.error("Saqlashda xatolik yuz berdi!")
-        }
-    };
-
-    return (
-        <div className="text-white">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-lg sm:text-2xl font-bold flex gap-2 items-center">
-                    <Layers className="text-blue-400 w-5 h-5 sm:w-8 sm:h-8"/>
-                    <span className="hidden sm:inline">Sinflar boshqaruvi</span>
-                    <span className="text-orange-300">({grades.length})</span>
-                </h1>
-
-                <button
-                    className="bg-gradient-to-r to-[#AAFFA9] from-green-500 px-2 sm:px-3 py-2 rounded flex items-center gap-1 text-sm sm:text-base"
-                    onClick={handleAdd}>
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5"/>
-                    <span className="hidden sm:inline">Yangi sinf qo'shish</span>
-                </button>
-
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 pt-4">
+        <div>
+          <h1 className="text-2xl font-extrabold flex items-center gap-3">
+            <div className="bg-blue-500/10 p-2 rounded-lg">
+              <Layers className="text-blue-400" size={28} />
             </div>
-
-            <div className="relative mb-4">
-                <Search
-                    className="absolute left-2 top-2.5 text-gray-400 w-4 h-4 sm:w-5 sm:h-5"/>
-
-                <input
-                    type="text"
-                    placeholder="Qidirish..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="w-full bg-gray-800 p-2 pl-8 rounded"/>
-            </div>
-
-            <div className="bg-gray-800 rounded p-3">
-                {filtered.length === 0
-                    ? (
-                        <p className="text-center text-gray-400 py-4">Hech narsa topilmadi</p>
-                    )
-                    : (
-                        <div className="flex flex-col gap-2">
-                            {filtered.map((g, i) => (
-                                <div
-                                    key={g.id}
-                                    className="bg-gray-900 p-3 rounded flex justify-between items-center hover:bg-gray-700">
-                                    <div className="flex gap-4">
-                                        <p>{i + 1}.</p>
-                                        <p className="font-semibold">{g.name}</p>
-                                    </div>
-
-                                    <div className="flex gap-2">
-                                        <button onClick={() => handleEdit(g)} className="p-1">
-                                            <Edit className="text-yellow-400 w-4 h-4 sm:w-5 sm:h-5"/>
-                                        </button>
-
-                                        <button onClick={() => handleDelete(g.id)} className="p-1">
-                                            <Trash2 className="text-red-500 w-4 h-4 sm:w-5 sm:h-5"/>
-                                        </button>
-
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-            </div>
-            {showModal && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-                    <div className="bg-gray-900 w-[95%] sm:max-w-md p-4 sm:p-6 rounded max-h-[90vh] overflow-y-auto">
-                        <button
-                            className="absolute right-3 top-3 text-gray-400 hover:text-white cursor-pointer"
-                            onClick={() => setShowModal(false)}>
-                            <X size={20}/>
-                        </button>
-
-                        <h2 className="text-xl font-bold mb-4">
-                            {editingGrade
-                                ? "Sinfni tahrirlash"
-                                : "Yangi sinf qo'shish"}
-                        </h2>
-
-                        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Sinf nomi (masalan: 7-A)"
-                                value={form.name}
-                                onChange={(e) => setForm({name: e.target.value})}
-                                className="p-2 rounded bg-gray-800"
-                                required/>
-
-                            <div className="flex justify-end gap-2 mt-2">
-                                <button
-                                    type="button"
-                                    className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600"
-                                    onClick={() => setShowModal(false)}>
-                                    Bekor qilish
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 px-4 py-1 rounded hover:bg-blue-700">
-                                    Saqlash
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            Sinflar
+            <span className="text-sm font-medium bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">
+              {grades.length} jami
+            </span>
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">Maktab sinflari va guruhlarini tahrirlash</p>
         </div>
-    );
+        <button
+          onClick={handleAdd}
+          className="bg-[#27a55d] hover:bg-[#218c4f] text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#27a55d]/20 active:scale-95 font-bold uppercase text-xs tracking-wider"
+        >
+          <Plus size={18} />
+          Yangi Sinf
+        </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="bg-[#1E293B] p-3 rounded-2xl border border-gray-800 shadow-sm mb-6">
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <input
+            type="text"
+            placeholder="Sinf nomini yozing..."
+            className="w-full bg-[#0F172A] border border-gray-700 rounded-xl py-2.5 pl-10 pr-4 outline-none focus:border-blue-500 transition-colors text-sm"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Grades List */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filtered.length === 0 ? (
+          <div className="col-span-full py-20 text-center bg-[#1E293B] rounded-3xl border border-dashed border-gray-700">
+            <div className="bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Layers className="text-gray-600" size={32} />
+            </div>
+            <p className="text-gray-500 font-medium">Hech qanday sinf topilmadi</p>
+          </div>
+        ) : (
+          filtered.map((g, index) => (
+            <div
+              key={g.id}
+              className="group bg-[#1E293B] border border-gray-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all hover:shadow-xl relative overflow-hidden"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                    <Hash size={20} className="text-blue-400 group-hover:text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white leading-none">{g.name}</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-800/50">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleEdit(g)}
+                    className="p-2 hover:bg-yellow-500/10 rounded-lg text-gray-500 hover:text-yellow-500 transition-colors"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(g.id)}
+                    className="p-2 hover:bg-red-500/10 rounded-lg text-gray-500 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+                
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1E293B] w-full max-w-sm rounded-3xl border border-gray-700 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#1e293b]">
+              <h2 className="text-xl font-bold text-white">
+                {editingGrade ? "Sinfni tahrirlash" : "Yangi Sinf Qo'shish"}
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div className="space-y-2">
+                <label className="text-[10px]  text-gray-500 uppercase ml-1 tracking-wider">
+                  Sinf Nomi
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="Masalan: 9-2025"
+                  className="w-full bg-[#0F172A] border border-gray-700 rounded-xl p-4 outline-none focus:border-blue-500 transition-all text-white font-medium"
+                  value={form.name}
+                  onChange={(e) => setForm({ name: e.target.value })}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 py-3.5 rounded-2xl bg-gray-800 text-gray-400 font-bold text-xs hover:bg-gray-700 transition-colors uppercase tracking-widest"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3.5 rounded-2xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-500 shadow-xl shadow-blue-500/10 transition-all uppercase tracking-widest"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
