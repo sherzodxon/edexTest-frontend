@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import RenderMixedContent from "@/components/renderMixedContent";
+import "katex/dist/katex.min.css";
 
 export default function AdminTestViewPage() {
   const { id } = useParams();
@@ -51,37 +53,40 @@ export default function AdminTestViewPage() {
         </p>
       </div>
 
-      {/* Questions */}
       <div className="space-y-4">
         {test.questions.map((q: any, index: number) => (
           <div
             key={q.id}
             className="bg-gray-900 border border-gray-700 rounded-lg p-4"
           >
-            <h3 className="font-semibold mb-2">
-              {index + 1}. {q.text}
-            </h3>
+            <h3 className="font-semibold mb-2 flex items-start gap-2">
+  <span>{index + 1}.</span> 
+  <RenderMixedContent 
+    text={q.text} 
+    textClass="text-xl text-white font-bold leading-relaxed" 
+  />
+</h3>
 
-            <div className="space-y-2">
-              {q.options.map((o: any) => (
-                <div
-                  key={o.id}
-                  className={`flex items-center gap-2 p-2 rounded
-                    ${
-                      o.isCorrect
-                        ? "bg-green-900/40 border border-green-700"
-                        : "bg-gray-800"
-                    }`}
-                >
-                  {o.isCorrect ? (
-                    <CheckCircle className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-gray-500" />
-                  )}
-                  <span>{o.text}</span>
-                </div>
-              ))}
-            </div>
+<div className="space-y-2">
+  {q.options.map((o: any) => (
+    <div
+      key={o.id}
+      className={`flex items-center gap-2 p-2 rounded transition-colors ${
+        o.isCorrect ? "bg-green-900/40 border border-green-700" : "bg-gray-800"
+      }`}
+    >
+      {o.isCorrect ? (
+        <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
+      ) : (
+        <XCircle className="w-4 h-4 text-gray-500 shrink-0" />
+      )}
+      <RenderMixedContent 
+        text={o.text} 
+        textClass="text-gray-200" 
+      />
+    </div>
+  ))}
+</div>
           </div>
         ))}
       </div>
