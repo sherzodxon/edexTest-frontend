@@ -130,13 +130,14 @@ export default function CreateTestPage() {
         else if (!selectedGrade) error = "Sinfni tanlang!";
         else if (!startTime || !endTime) error = "Vaqtlarni belgilang!";
         else if (startTime >= endTime) error = "Tugash vaqti boshlanishidan keyin bo'lishi kerak!";
+        // Kamida 15ta savol sharti
+        else if (questions.length < 15) error = `Test yaratish uchun kamida 15 ta savol bo'lishi kerak. Hozirda: ${questions.length} ta`;
 
         if (error) { toast.error(error); return false; }
 
         for (let i = 0; i < questions.length; i++) {
             const q = questions[i];
             
-            // Bo'sh savol matni
             if (!q.text.trim()) {
                 invalids.push(i);
                 toast.error(`${i + 1}-savol matni bo'sh!`);
@@ -144,7 +145,6 @@ export default function CreateTestPage() {
                 return false;
             }
 
-            // Javob variantlari soni va bo'shligi
             const filledOptions = q.options.filter(opt => opt.trim() !== "");
             if (filledOptions.length < 4) {
                 invalids.push(i);
@@ -153,7 +153,6 @@ export default function CreateTestPage() {
                 return false;
             }
 
-            // --- Bir xil javoblarni tekshirish ---
             const uniqueOptions = new Set(q.options.map(o => o.trim().toLowerCase()));
             if (uniqueOptions.size < q.options.length) {
                 invalids.push(i);
@@ -162,7 +161,6 @@ export default function CreateTestPage() {
                 return false;
             }
 
-            // To'g'ri javob tanlanganligi
             if (q.correctIndex === null) {
                 invalids.push(i);
                 toast.error(`${i + 1}-savolda to'g'ri javob tanlanmagan!`);
@@ -196,7 +194,6 @@ export default function CreateTestPage() {
             
             await createTest(formData);
             toast.success("Test muvaffaqiyatli yaratildi!");
-            // Siz yuborgan yo'nalishga push qilindi:
             router.push(`/teacher`);
         } catch (err) {
             toast.error("Saqlashda xatolik yuz berdi!");
@@ -211,13 +208,11 @@ export default function CreateTestPage() {
 
     return (
         <div className="max-w-5xl mx-auto space-y-6 px-2 pb-40">
-            {/* Header va Form qolgan qismlari o'zgarmasdan saqlandi */}
             <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-800">
                 <BadgeQuestionMark className="text-blue-600" /> Yangi test yaratish
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Main Card (Title, Grade, Time) */}
                 <Card className="p-6 bg-emerald-50 border-emerald-100 shadow-sm space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
@@ -261,10 +256,9 @@ export default function CreateTestPage() {
                     </div>
                 </Card>
 
-                {/* Questions List */}
                 {questions.map((q, qIndex) => (
-                    <Card key={q.id} className={`p-6 space-y-4 relative border-2 transition-all ${invalidIndexes.includes(qIndex) ? "border-red-300 bg-red-50" : "border-slate-100 shadow-lg"}`}>
-                        <div className="flex justify-between items-center border-b pb-2">
+                    <Card key={q.id} className={`p-6 space-y-4 gap-2 relative border-2 transition-all ${invalidIndexes.includes(qIndex) ? "border-red-300 bg-red-50" : "border-slate-100 shadow-lg"}`}>
+                        <div className="flex justify-between items-center border-b pb-1">
                             <span className="text-sm font-bold text-slate-700">Savol {qIndex + 1}</span>
                             {qIndex > 0 && (
                                 <button type="button" onClick={() => removeQuestion(qIndex)} className="text-red-400 hover:text-red-600 transition-colors cursor-pointer">
@@ -306,30 +300,35 @@ export default function CreateTestPage() {
                     </Card>
                 ))}
 
-                {/* Submit Buttons */}
-                <div className="flex justify-between  sm:flex-row gap-4">
-                    <Button 
-                        type="button" 
-                        onClick={addQuestion} 
-                        variant="outline" 
-                        className="flex items-center justify-center cursor-pointer h-14 border border-slate-300 hover:bg-blue-100 hover:text-blue-600 hover:border-blue-600 text-slate-600 transition-all "
-                    >
-                        <Plus className="mr-2" /> Yangi savol qo'shish
-                    </Button>
+                <div className="space-y-4">
+                    {questions.length < 15 && (
+                        <p className="text-amber-600 text-sm bg-amber-50 p-1 rounded-lg border border-amber-200 inline-block">
+                            * Testni saqlash uchun yana kamida {15 - questions.length} ta savol qo'shishingiz kerak.
+                        </p>
+                    )}
+                    <div className="flex justify-between sm:flex-row gap-4">
+                        <Button 
+                            type="button" 
+                            onClick={addQuestion} 
+                            variant="outline" 
+                            className="flex items-center justify-center cursor-pointer h-14 border border-slate-300 hover:bg-blue-100 hover:text-blue-600 hover:border-blue-600 text-slate-600 transition-all "
+                        >
+                            <Plus className="mr-2" /> Yangi savol qo'shish
+                        </Button>
 
-                    <Button 
-                        variant="default" 
-                        type="submit" 
-                        disabled={loading} 
-                        className="flex items-center cursor-pointer h-14 justify-center bg-amber-500 hover:bg-amber-600 text-white shadow-xl transition-all"
-                    >
-                        {loading ? <Loader className="animate-spin mr-2" /> : <HardDriveUpload className="mr-2" />}
-                        {loading ? "Saqlanmoqda..." : "Testni Saqlash"}
-                    </Button>
+                        <Button 
+                            variant="default" 
+                            type="submit" 
+                            disabled={loading} 
+                            className="flex items-center cursor-pointer h-14 justify-center bg-amber-500 hover:bg-amber-600 text-white shadow-xl transition-all"
+                        >
+                            {loading ? <Loader className="animate-spin mr-2" /> : <HardDriveUpload className="mr-2" />}
+                            {loading ? "Saqlanmoqda..." : "Testni Saqlash"}
+                        </Button>
+                    </div>
                 </div>
             </form>
 
-            {/* Arabic Keyboard */}
             <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-[60]">
                 {isArabicPanelOpen && (
                     <Card className="p-3 shadow-2xl border-2 border-blue-100 max-w-[90vw] bg-white/95 backdrop-blur mb-2">
