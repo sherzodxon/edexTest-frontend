@@ -34,6 +34,7 @@ export default function AdminSubjectsPage() {
   const [query, setQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [isLoading, setIsLoading] = useState(true)
   const { showConfirm } = useConfirmToast();
   const [form, setForm] = useState({ name: "", gradeId: "" });
 
@@ -56,8 +57,12 @@ export default function AdminSubjectsPage() {
   };
 
   useEffect(() => {
-    fetchSubjects();
-    fetchGrades();
+    const init = async () => {
+      setIsLoading(true);
+      await Promise.all([fetchSubjects(), fetchGrades()]);
+      setIsLoading(false);
+    };
+    init();
   }, []);
 
   const filtered = subjects.filter((s) =>
@@ -108,6 +113,14 @@ export default function AdminSubjectsPage() {
 
   return (
     <div className="min-h-screen text-gray-100 pb-10">
+      <style jsx global>{`
+        @keyframes pulse-custom {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.1; }
+        }
+        .animate-skeleton { animation: pulse-custom 1.5s infinite ease-in-out; }
+      `}</style>
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 pt-4">
         <div>
@@ -117,7 +130,7 @@ export default function AdminSubjectsPage() {
             </div>
             Fanlar
             <span className="text-sm font-medium bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">
-              {subjects.length} jami
+              {isLoading ? "..." : subjects.length} jami
             </span>
           </h1>
           <p className="text-gray-500 text-sm mt-1">O'quv rejasidagi fanlar va ularning sinflari</p>
@@ -145,9 +158,26 @@ export default function AdminSubjectsPage() {
         </div>
       </div>
 
-      {/* Subjects Grid */}
+      {/* Subjects Grid or Skeleton Loader */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          // Skeleton Cards
+          [...Array(8)].map((_, i) => (
+            <div key={i} className="bg-[#1E293B] border border-gray-800 rounded-2xl p-4 h-[145px] flex flex-col">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-gray-800 rounded-xl animate-skeleton"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 bg-gray-800 rounded w-3/4 animate-skeleton"></div>
+                  <div className="h-3 bg-gray-800 rounded w-1/2 animate-skeleton"></div>
+                </div>
+              </div>
+              <div className="mt-auto pt-4 border-t border-gray-800/50 flex gap-2">
+                <div className="w-8 h-8 bg-gray-800 rounded animate-skeleton"></div>
+                <div className="w-8 h-8 bg-gray-800 rounded animate-skeleton"></div>
+              </div>
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
           <div className="col-span-full py-20 text-center bg-[#1E293B] rounded-3xl border border-dashed border-gray-700">
             <Library className="text-gray-600 mx-auto mb-4" size={48} />
             <p className="text-gray-500 font-medium">Hech qanday fan topilmadi</p>
@@ -190,13 +220,11 @@ export default function AdminSubjectsPage() {
                     <Trash2 size={18} />
                   </button>
                 </div>
-               
               </div>
             </div>
           ))
         )}
       </div>
-
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">

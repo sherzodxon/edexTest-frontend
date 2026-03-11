@@ -10,7 +10,8 @@ import {
   X,
   Layers,
   ChevronRight,
-  Hash
+  Hash,
+  Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useConfirmToast from "@/components/hooks/useConfirmToast";
@@ -22,6 +23,7 @@ interface Grade {
 
 export default function AdminGradesPage() {
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Yuklanish holati
   const [query, setQuery] = useState("");
   const { showConfirm } = useConfirmToast();
   const [showModal, setShowModal] = useState(false);
@@ -30,11 +32,14 @@ export default function AdminGradesPage() {
 
   const fetchGrades = async () => {
     try {
+      setIsLoading(true);
       const res = await api.get("/grades");
       setGrades(res.data);
     } catch (err) {
       console.error(err);
       toast.error("Sinf ma'lumotlarini olishda xatolik!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -89,23 +94,26 @@ export default function AdminGradesPage() {
 
   return (
     <div className="min-h-screen text-gray-100">
-      {/* Scrollbar Customization */}
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0F172A; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        @keyframes pulse-bg {
+          0%, 100% { background-color: rgba(51, 65, 85, 0.5); }
+          50% { background-color: rgba(51, 65, 85, 0.2); }
+        }
+        .animate-skeleton { animation: pulse-bg 2s infinite ease-in-out; }
       `}</style>
 
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 pt-4">
         <div>
-          <h1 className="text-2xl font-extrabold flex items-center gap-3">
+         <h1 className="text-2xl font-extrabold flex items-center gap-3">
             <div className="bg-blue-500/10 p-2 rounded-lg">
               <Layers className="text-blue-400" size={28} />
             </div>
             Sinflar
             <span className="text-sm font-medium bg-gray-800 text-gray-400 px-3 py-1 rounded-full border border-gray-700">
-              {grades.length} jami
+              {isLoading ? "..." : grades.length} jami
             </span>
           </h1>
           <p className="text-gray-500 text-sm mt-1">Maktab sinflari va guruhlarini tahrirlash</p>
@@ -133,9 +141,23 @@ export default function AdminGradesPage() {
         </div>
       </div>
 
-      {/* Grades List */}
+      {/* Grades List or Skeleton Loader */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          // Skeleton Cards
+          [...Array(8)].map((_, i) => (
+            <div key={i} className="bg-[#1E293B] border border-gray-800 rounded-2xl p-4 h-[140px] flex flex-col justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-800 rounded-xl animate-skeleton"></div>
+                <div className="w-24 h-5 bg-gray-800 rounded animate-skeleton"></div>
+              </div>
+              <div className="flex justify-between items-center pt-4 border-t border-gray-800/50">
+                <div className="w-20 h-8 bg-gray-800 rounded animate-skeleton"></div>
+                <div className="w-8 h-8 bg-gray-800 rounded-full animate-skeleton"></div>
+              </div>
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
           <div className="col-span-full py-20 text-center bg-[#1E293B] rounded-3xl border border-dashed border-gray-700">
             <div className="bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Layers className="text-gray-600" size={32} />
@@ -143,7 +165,7 @@ export default function AdminGradesPage() {
             <p className="text-gray-500 font-medium">Hech qanday sinf topilmadi</p>
           </div>
         ) : (
-          filtered.map((g, index) => (
+          filtered.map((g) => (
             <div
               key={g.id}
               className="group bg-[#1E293B] border border-gray-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all hover:shadow-xl relative overflow-hidden"
@@ -174,7 +196,6 @@ export default function AdminGradesPage() {
                     <Trash2 size={18} />
                   </button>
                 </div>
-                
               </div>
             </div>
           ))

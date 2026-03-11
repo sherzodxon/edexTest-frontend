@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Users, BookOpen, Layers, FileText, LogOut, Menu, X } from "lucide-react";
+import { Users, BookOpen, Layers, FileText, LogOut, Menu, X, Users2 } from "lucide-react";
 import EdexLogo from "@/components/ui/logo";
 import { logout } from "@/store/authSlice";
 import { useDispatch } from "react-redux";
@@ -19,6 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Sinflar", href: "/admin/grades", icon: <Layers size={22} className="text-[#89CFF0]" /> },
     { name: "Fanlar", href: "/admin/subjects", icon: <BookOpen size={22} className="text-[#FDAA48]" /> },
     { name: "Testlar", href: "/admin/tests", icon: <FileText size={22} className="text-[#DA70D6]" /> },
+    { name: "Guruhlar", href: "/admin/groups", icon: <Users2 size={22} className="text-[#00CED1]" /> }
   ];
 
   const handleLogout = () => {
@@ -29,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-gray-900 text-white overflow-hidden">
-      {/* Overlay (mobile) */}
+      
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -37,7 +38,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed lg:static z-50

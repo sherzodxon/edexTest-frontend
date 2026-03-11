@@ -33,6 +33,7 @@ import {
   PencilLine,
   PlayCircle,
   ListTodo,
+  Layers,
 
 } from "lucide-react";
 import { Dialog } from "@headlessui/react";
@@ -135,8 +136,8 @@ export default function GradeDetailsPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8 px-3 sm:px-0">
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
-        {gradeRes || ""}-sinf paneli
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2">
+      <Layers/>  <span className="text-green-500">{gradeRes || ""}</span> sinf sahifasi
       </h1>
       <div>
         <h2 className="flex items-center gap-2 text-lg font-semibold mb-3">

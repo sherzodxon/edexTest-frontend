@@ -1,9 +1,5 @@
-// lib/axios.ts
 import axios from "axios";
 
-/* =======================
-    🔹 Asosiy API instance
-  ======================= */
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_API || "http://localhost:5000/api",
     withCredentials: false
@@ -20,18 +16,21 @@ api.interceptors.request
         return config;
     });
 
-api.interceptors.response.use((res) => res, (err) => {
-        if (err
-            ?.response
-                ?.status === 401 || err
-                    ?.response
-                        ?.status === 403) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-        }
-        return Promise.reject(err);
-    });
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+
+    if (err?.response?.status === 401 || err?.response?.status === 403) {
+      if (!currentPath.startsWith("/dashboard")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(err);
+  }
+);
 
 export const loginRequest = (data : {
     username: string;

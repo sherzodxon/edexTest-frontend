@@ -27,7 +27,6 @@ export default function TeacherDashboard() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
-      {/* PROFILE CARD */}
       <div className="bg-white shadow rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 flex justify-center">
         <div className="text-center">
           <div className="flex justify-center mb-3 sm:mb-4">
@@ -44,7 +43,6 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* INFO CARD */}
       <div className="bg-gray-50 border rounded-lg p-4 sm:p-6 text-center text-sm sm:text-base text-gray-600">
         <p>
           <span className="font-medium text-blue-600">Ro'yxat</span>{" "}

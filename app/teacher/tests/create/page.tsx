@@ -17,11 +17,13 @@ import {
     Loader,
     HardDriveUpload,
     Languages,
-    CheckCircle2
+    CheckCircle2,
+    Database
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { QuestionBankModal } from "@/components/ui/questionBankModal";
 
 const Uzbek: CustomLocale = {
     weekdays: {
@@ -66,9 +68,48 @@ export default function CreateTestPage() {
     const [questions, setQuestions] = useState<Question[]>([
         { id: Math.random(), text: "", image: null, options: ["", "", "", ""], correctIndex: null }
     ]);
-
+   // CreateTestPage ichida:
+const [bankModal, setBankModal] = useState<{ isOpen: boolean; targetIndex: number | null }>({
+    isOpen: false,
+    targetIndex: null
+});
     const arabicLetters = ["ا", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي", "أ", "إ", "آ", "ؤ", "ئ", "ء", "ة", "ٱ", "لا", "َ", "ُ", "ِ", "ً", "ٌ", "ٍ", "ْ", "ّ", "ٰ", "ٓ", "؟", "،", "؛", "ـ", "٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+const handleSelectFromBank = (bankQ: any) => {
+    if (bankModal.targetIndex === null) return;
 
+    const index = bankModal.targetIndex;
+    const newQs = [...questions];
+    
+    newQs[index] = {
+        ...newQs[index],
+        text: bankQ.text,
+        options: bankQ.options.map((o: any) => o.text),
+        correctIndex: bankQ.options.findIndex((o: any) => o.isCorrect)
+    };
+    setQuestions(newQs);
+    setBankModal({ isOpen: false, targetIndex: null });
+
+    setTimeout(() => {
+        const formatForMathField = (val: string) => {
+            if (!val.includes('\\') && !val.includes('$') && !val.includes('^')) {
+                return `\\text{${val}}`;
+            }
+            return val;
+        };
+
+        const textMf = mathRefs.current[`q-${index}`];
+        if (textMf) {
+            textMf.setValue(formatForMathField(bankQ.text), { format: 'latex' });
+        }
+
+        bankQ.options.forEach((opt: any, oIdx: number) => {
+            const optMf = mathRefs.current[`q-${index}-opt-${oIdx}`];
+            if (optMf) {
+                optMf.setValue(formatForMathField(opt.text), { format: 'latex' });
+            }
+        });
+    }, 50);
+};
     useEffect(() => {
         getTeacherGrades().then((res) => setGrades(res.data)).catch(console.error);
     }, []);
@@ -86,9 +127,10 @@ export default function CreateTestPage() {
                     mf.className = isOption 
                         ? "w-full border rounded-lg px-3 py-1 bg-white min-h-[40px] focus-within:ring-2 ring-blue-300 transition"
                         : "w-full border rounded-lg px-3 py-2 bg-white min-h-[60px] text-lg focus-within:ring-2 ring-blue-300 transition";
-                    
-                    mf.defaultMode = "text"; 
-                    
+                    mf.defaultMode = "math"; 
+mf.smartMode = true; 
+mf.smartFence = true;
+
                     mf.addEventListener("input", (e: any) => {
                         const val = e.target.getValue();
                         setQuestions(prev => {
@@ -113,7 +155,7 @@ export default function CreateTestPage() {
             });
         });
     }, [questions.length]);
-
+    
     const addQuestion = () => {
         setQuestions([...questions, { id: Math.random(), text: "", image: null, options: ["", "", "", ""], correctIndex: null }]);
     };
@@ -130,7 +172,6 @@ export default function CreateTestPage() {
         else if (!selectedGrade) error = "Sinfni tanlang!";
         else if (!startTime || !endTime) error = "Vaqtlarni belgilang!";
         else if (startTime >= endTime) error = "Tugash vaqti boshlanishidan keyin bo'lishi kerak!";
-        // Kamida 15ta savol sharti
         else if (questions.length < 15) error = `Test yaratish uchun kamida 15 ta savol bo'lishi kerak. Hozirda: ${questions.length} ta`;
 
         if (error) { toast.error(error); return false; }
@@ -258,14 +299,23 @@ export default function CreateTestPage() {
 
                 {questions.map((q, qIndex) => (
                     <Card key={q.id} className={`p-6 space-y-4 gap-2 relative border-2 transition-all ${invalidIndexes.includes(qIndex) ? "border-red-300 bg-red-50" : "border-slate-100 shadow-lg"}`}>
-                        <div className="flex justify-between items-center border-b pb-1">
-                            <span className="text-sm font-bold text-slate-700">Savol {qIndex + 1}</span>
-                            {qIndex > 0 && (
-                                <button type="button" onClick={() => removeQuestion(qIndex)} className="text-red-400 hover:text-red-600 transition-colors cursor-pointer">
-                                    <CircleX className="w-6 h-6" />
-                                </button>
-                            )}
-                        </div>
+                      
+<div className="flex items-center justify-between gap-3">
+    <button 
+        type="button" 
+        title="Bankdan yuklash"
+        onClick={() => setBankModal({ isOpen: true, targetIndex: qIndex })}
+        className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:bg-blue-50 rounded-lg"
+    >
+        <Database className="w-5 h-5" />
+    </button>
+    
+    {qIndex > 0 && (
+        <button type="button" onClick={() => removeQuestion(qIndex)} className="text-red-400 hover:text-red-600 transition-colors cursor-pointer">
+            <CircleX className="w-6 h-6" />
+        </button>
+    )}
+</div>
 
                         <div className="space-y-2">
                             <label className="text-sm text-slate-600 font-medium">Savol matni va formulasi</label>
@@ -359,6 +409,11 @@ export default function CreateTestPage() {
                     <Languages className="w-6 h-6" />
                 </Button>
             </div>
+            <QuestionBankModal 
+                isOpen={bankModal.isOpen}
+                onClose={() => setBankModal({ isOpen: false, targetIndex: null })}
+                onSelect={handleSelectFromBank}
+            />
         </div>
     );
 }

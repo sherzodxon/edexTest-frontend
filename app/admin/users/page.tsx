@@ -5,7 +5,8 @@ import api, { getAllGrades, getSubjectsByGrade, createUser, updateUser, deleteUs
 import Link from "next/link";
 import { 
   Search, ChevronRight, GraduationCap, UserCog, Shield, 
-  Trash2, Edit, Plus, EyeOff, Eye, Users, X 
+  Trash2, Edit, Plus, EyeOff, Eye, Users, X, 
+  Loader
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useConfirmToast from "@/components/hooks/useConfirmToast";
@@ -33,6 +34,8 @@ export default function AdminUsersPage() {
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -48,8 +51,12 @@ export default function AdminUsersPage() {
   const [subjectsByGrade, setSubjectsByGrade] = useState<{ [key: number]: Subject[] }>({});
 
   useEffect(() => {
-    fetchUsers();
-    fetchGrades();
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([fetchUsers(), fetchGrades()]);
+      setLoading(false);
+    };
+    init();
   }, []);
 
   const fetchUsers = async () => {
@@ -162,7 +169,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={() => { setEditingUser(null); setFormData({name:"", surname:"", username:"", password:"", role:"STUDENT", grades:[], subjects:[]}); setShowModal(true); }}
-          className="bg-[#27a55d] hover:bg-[#218c4f] text-white px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#27a55d]/20 active:scale-95 font-semibold"
+          className="bg-[#27a55d] hover:bg-[#218c4f] text-white px-6 py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#27a55d]/20 active:scale-95 font-bold uppercase text-xs tracking-wider"
         >
           <Plus size={20} />
           Yangi foydalanuvchi
@@ -202,8 +209,9 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Users Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+     {loading? (
+      <div className="flex justify-center py-20"><Loader   className="animate-spin text-green-600" size={40} /></div>
+    ):(<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((u) => {
           const isAdmin = u.role === "ADMIN";
           return (
@@ -243,7 +251,8 @@ export default function AdminUsersPage() {
             </div>
           );
         })}
-      </div>
+      </div>)}
+      
 
       {/* Modern Modal */}
       {showModal && (

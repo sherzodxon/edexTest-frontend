@@ -14,7 +14,7 @@ const rubik = Rubik({
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteName = "Edex School";
-  const description = "Raqamli ta'lim platformasi";
+  const description = "Raqamli test platformasi,Muallif:Sh.Yarmatxonov";
 
   return {
     title: {
@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: siteName,
       description,
-      url: "https://edex.uz", 
+      url: "https://test.edexschool.uz", 
       siteName,
       type: "website",
     },

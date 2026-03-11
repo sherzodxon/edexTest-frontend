@@ -9,7 +9,9 @@ import api from "@/lib/axios";
 import { logout } from "@/store/authSlice";
 import {
   ClockArrowDown,
-  GraduationCapIcon,
+  Database,
+  DatabaseBackup,
+  Layers,
   LogOut,
   Menu,
   X,
@@ -27,7 +29,6 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Body scroll lock
   useEffect(() => {
     if (sidebarOpen) document.body.classList.add("overflow-hidden");
     else document.body.classList.remove("overflow-hidden");
@@ -117,7 +118,6 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         </div>
       </div>
 
-      {/* Main content */}
       <main className="flex-1 flex flex-col">
         <header className="md:hidden flex items-center justify-between bg-white shadow px-4 py-2">
           <button onClick={() => setSidebarOpen(true)} className="text-green-700">
@@ -168,11 +168,28 @@ function SidebarContent({
               }`}
               onClick={onLinkClick} 
             >
-              <GraduationCapIcon size={24} />
+              <Layers size={24} />
               {grade.name}
             </Link>
           ))
         )}
+        <div className="pt-4 pb-2">
+    <p className="text-xs font-semibold text-gray-400 uppercase px-3 mb-2">Resurslar</p>
+    <Link
+      href="/teacher/question-bank"
+      className={`flex items-center gap-2 px-3 py-2 font-bold rounded-md transition-colors ${
+        pathname === "/teacher/question-bank"
+          ? "bg-blue-600 text-white"
+          : "text-gray-700 hover:bg-gray-100"
+      }`}
+      onClick={onLinkClick}
+    >
+      <div className={`p-1 rounded ${pathname === "/teacher/question-bank" ? "text-white" : "text-blue-600"}`}>
+        <DatabaseBackup />
+      </div>
+      Savollar majmui
+    </Link>
+  </div>
       </nav>
 
       <div className="border-t pt-4 mt-4">

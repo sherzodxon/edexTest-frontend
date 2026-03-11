@@ -11,7 +11,8 @@ import {
   Calendar, 
   CheckCircle2, 
   AlertCircle,
-  Timer
+  Timer,
+  Loader
 } from "lucide-react";
 import toast from "react-hot-toast";
 import useConfirmToast from "@/components/hooks/useConfirmToast";
@@ -48,24 +49,21 @@ export default function AdminTestsPage() {
   );
 
   const handleDelete = async (id: number) => {
-    const ok = await showConfirm("Haqiqatan ham ushbu testni o‘chirmoqchimisiz?");
+    const ok = await showConfirm("Haqiqatan ham ushbu testni o'chirmoqchimisiz?");
     if (!ok) return;
 
     try {
       await deleteTest(id);
-      toast.success("Test o‘chirildi");
+      toast.success("Test o'chirildi");
       fetchTests();
     } catch {
-      toast.error("Testni o‘chirishda xatolik!");
+      toast.error("Testni o'chirishda xatolik!");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-        <p className="animate-pulse">Testlar yuklanmoqda...</p>
-      </div>
+      <div className="flex justify-center py-20"><Loader   className="animate-spin text-green-600" size={40} /></div>
     );
   }
 
