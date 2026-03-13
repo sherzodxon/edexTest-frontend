@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import api, { finishTest } from "../../../../lib/axios";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,10 @@ export default function StudentTestPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [fullImage, setFullImage] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
+    
+// ... boshqa statelar ...
+const warningRef = useRef(0); // setWarningCount o'rniga useRef ishlatamiz
+const lastViolationTime = useRef(0); // Bir vaqtda bir nechta hodisa sodir bo'lishini oldini olish uchun
 
     useEffect(() => {
         setIsMounted(true);
@@ -68,7 +72,54 @@ export default function StudentTestPage() {
     useEffect(() => {
         if (isMounted && id) localStorage.setItem(`current_idx_${id}`, String(currentIndex));
     }, [currentIndex, id, isMounted]);
+useEffect(() => {
+    if (!test || test.userFinished || isSubmitting) return;
 
+    const handleViolation = () => {
+        const now = Date.now();
+        if (now - lastViolationTime.current < 2000) return;
+        
+        lastViolationTime.current = now;
+        warningRef.current += 1;
+
+        if (warningRef.current >= 2) {
+            setTimeout(() => {
+                toast.error("Qoidalarni buzganingiz uchun test avtomatik yakunlandi!", { duration: 5000 });
+                handleSubmit();
+            }, 0);
+        } else {
+            
+            setTimeout(() => {
+                toast("DIQQAT! Sahifadan chiqish taqiqlanadi. Yana bir bor chiqib ketsangiz, testingiz bekor qilinadi!", {
+                    duration: 28000,
+                    icon: '⚠️',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#f59e0b',
+                        color: '#fff',
+                        fontWeight: 'bold'
+                    },
+                });
+            }, 0);
+        }
+    };
+
+    const handleVisibilityChange = () => {
+        if (document.hidden) handleViolation();
+    };
+
+    const handleBlur = () => {
+        handleViolation();
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+        window.removeEventListener("visibilitychange", handleVisibilityChange);
+        window.removeEventListener("blur", handleBlur);
+    };
+}, [test, isSubmitting]); 
     const handleSubmit = async () => {
         if (!test || isSubmitting) return;
         setIsSubmitting(true);
@@ -111,38 +162,43 @@ const getScoreColor = (score: number) => {
                   <p className="text-lg">Natijangiz: <strong className={getScoreColor(test.userScore || 0)}>{test.userScore}%</strong></p>
                 </Card>
                 
-                <Card className="p-0 rounded-none">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-center rounded">
-                            <thead className="bg-slate-50 border-b rounded">
-                                <tr>
-                                    <th className="p-4">#</th>
-                                    <th className="p-4">Savol</th>
-                                    <th className="p-4">Natija</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {test.questions.map((q, idx) => (
-                                    <tr key={q.id}>
-                                        <td className="p-4">{idx + 1}</td>
-                                        <td className="p-4"><RenderMixedContent text={q.text} /></td>
-                                       <td className="p-4 text-center">
-                                     {q.isCorrect ? (
-                                     <div className="text-green-600 flex justify-center">
-                                    <CheckCircle2 className="w-5 h-5" />
-                                    </div>
-                                    ) : (
-                                      <div className="text-red-600 flex justify-center">
-                                      <XCircle className="w-5 h-5" />
-                                    </div>
-                                    )}
-                                    </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
+               <Card className="p-0 rounded-xl overflow-hidden border-slate-200">
+  <div className="overflow-x-auto">
+   
+    <table className="w-full text-center table-fixed border-collapse">
+      <thead className="bg-slate-50 border-b">
+        <tr>
+          <th className="p-4 w-16 text-slate-500 font-semibold text-sm">#</th>
+          <th className="p-4 text-left text-slate-500 font-semibold text-sm">Savol</th>
+          <th className="p-4 w-24 text-slate-500 font-semibold text-sm">Natija</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-100">
+        {test.questions.map((q, idx) => (
+          <tr key={q.id} className="hover:bg-slate-50/50 transition-colors">
+            <td className="p-4 text-slate-600 font-medium">{idx + 1}</td>
+            <td className="p-4 text-left text-slate-800 break-words leading-relaxed min-w-[200px]">
+              {q.text}
+            </td>
+            <td className="p-4">
+              <div className="flex justify-center">
+                {q.isCorrect ? (
+                  <div className="bg-green-100 p-1.5 rounded-full">
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="bg-red-100 p-1.5 rounded-full">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                )}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Card>
             </div>
         );
     }
@@ -165,8 +221,9 @@ const getScoreColor = (score: number) => {
 
             <Card className="mb-6">
                 <CardContent className="p-6 py-4">
-                    <div className="text-lg font-semibold mb-4 text-slate-800">
-                        <RenderMixedContent text={currentQuestion.text} />
+                    <div className="text-lg font-semibold mb-4 text-slate-600">
+                        {/* <RenderMixedContent text={currentQuestion.text} /> */}
+                        {currentQuestion.text}
                     </div>
 
                     {currentQuestion.img && (
@@ -183,7 +240,8 @@ const getScoreColor = (score: number) => {
                                     className={`w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all border-2 cursor-pointer
                                     ${isSelected ? "bg-blue-50 border-blue-500 shadow-md ring-1 ring-blue-200" : "bg-white border-slate-100 hover:border-slate-300"}`}>
                                     <div className={`text-base sm:text-lg ${isSelected ? "text-blue-900 font-semibold" : "text-slate-700"}`}>
-                                        <RenderMixedContent text={opt.text} />
+                                        {/* <RenderMixedContent text={opt.text} /> */}
+                                        {opt.text}
                                     </div>
                                 </button>
                             );

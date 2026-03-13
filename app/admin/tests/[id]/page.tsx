@@ -59,12 +59,13 @@ export default function AdminTestViewPage() {
             key={q.id}
             className="bg-gray-900 border border-gray-700 rounded-lg p-4"
           >
-            <h3 className="font-semibold mb-2 flex items-start gap-2">
+            <h3 className="font-semibold mb-2 flex items-start gap-2  text-white font-bold leading-relaxed">
   <span>{index + 1}.</span> 
-  <RenderMixedContent 
+  {/* <RenderMixedContent 
     text={q.text} 
     textClass="text-xl text-white font-bold leading-relaxed" 
-  />
+  /> */}
+  {q.text}
 </h3>
 
 <div className="space-y-2">
@@ -80,10 +81,10 @@ export default function AdminTestViewPage() {
       ) : (
         <XCircle className="w-4 h-4 text-gray-500 shrink-0" />
       )}
-      <RenderMixedContent 
+      {/* <RenderMixedContent 
         text={o.text} 
         textClass="text-gray-200" 
-      />
+      /> */}{o.text}
     </div>
   ))}
 </div>
