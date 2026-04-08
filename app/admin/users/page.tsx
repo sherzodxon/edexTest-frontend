@@ -176,7 +176,7 @@ export default function AdminUsersPage() {
         </button>
       </div>
 
-      {/* Filters Card */}
+      
       <div className="bg-[#1E293B] p-4 rounded-2xl border border-gray-800 shadow-sm mb-6 flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />

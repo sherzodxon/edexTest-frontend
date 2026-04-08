@@ -6,7 +6,8 @@ import {
   Users2, Plus, Minus, Trash2, UserPlus, Loader2, X, Search, 
   CheckCircle2, UserCheck, Users, History, Calendar, Star,
   TrendingUp, Award,
-  Loader
+  Loader,
+  Check
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import useConfirmToast from "@/components/hooks/useConfirmToast";
@@ -24,7 +25,6 @@ export default function GroupsPage() {
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showPointModal, setShowPointModal] = useState(false);
-
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +34,23 @@ export default function GroupsPage() {
   const [pointDesc, setPointDesc] = useState("");
   const [logs, setLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
+const [selectedLogIds, setSelectedLogIds] = useState<number[]>([]);
 
+// Bitta logni tanlash yoki tanlovdan olib tashlash
+const toggleSelect = (id: number) => {
+  setSelectedLogIds(prev => 
+    prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+  );
+};
+
+// Barchasini tanlash
+const toggleSelectAll = () => {
+  if (selectedLogIds.length === logs.length) {
+    setSelectedLogIds([]);
+  } else {
+    setSelectedLogIds(logs.map(log => log.id));
+  }
+};
   const { showConfirm } = useConfirmToast();
 
   const fetchGroups = async () => {
@@ -133,22 +149,38 @@ export default function GroupsPage() {
     }
   };
 
-  const cancelPointLog = async (logId: number) => {
-    const confirm = await showConfirm("Ushbu ballni bekor qilmoqchimisiz?");
-    if (!confirm) return;
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/points/admin/cancel/${logId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setLogs(prev => prev.filter(l => l.id !== logId));
-      fetchGroups();
-      toast.success("Ball bekor qilindi");
-    } catch (err) {
-      toast.error("Xatolik yuz berdi");
-    }
-  };
+const cancelPointLogs = async (ids: number | number[]) => {
+  const targetIds = Array.isArray(ids) ? ids : [ids];
+  if (targetIds.length === 0) return;
 
+  const confirm = await showConfirm(
+    targetIds.length === 1 
+      ? "Ushbu ballni bekor qilmoqchimisiz?" 
+      : `Tanlangan ${targetIds.length} ta ballni bekor qilmoqchimisiz?`
+  );
+
+  if (!confirm) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    
+    // Backend bir nechta ID qabul qilmasa, har biri uchun alohida so'rov:
+    await Promise.all(
+      targetIds.map(id => 
+        axios.delete(`${API_BASE_URL}/points/admin/cancel/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      )
+    );
+
+    setLogs(prev => prev.filter(l => !targetIds.includes(l.id)));
+    setSelectedLogIds([]); // Tozalash
+    fetchGroups();
+    toast.success(targetIds.length === 1 ? "Ball bekor qilindi" : "Barcha tanlangan ballar bekor qilindi");
+  } catch (err) {
+    toast.error("Xatolik yuz berdi");
+  }
+};
   const openAddModal = async (group: any) => {
     setSelectedGroup(group);
     setSelectedIds([]);
@@ -395,55 +427,101 @@ export default function GroupsPage() {
         </div>
       )}
 
-      {showArchiveModal && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex items-center justify-center p-4 text-white">
-          <div className="bg-gray-950 w-full max-w-2xl rounded-[3rem] border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-             <div className="p-8 border-b border-gray-800 flex justify-between items-center bg-gray-950">
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-500"><History size={24}/></div>
-                 <div>
-                    <h2 className="text-xl font-black">{selectedGroup?.name}</h2>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Ballar tarixi</p>
-                 </div>
-               </div>
-               <button onClick={() => setShowArchiveModal(false)} className="p-3 hover:bg-gray-800 rounded-2xl transition-all text-gray-500 hover:text-white"><X/></button>
-             </div>
-             
-             <div className="flex-1 overflow-y-auto p-8 space-y-4 custom-scrollbar">
-                {logsLoading ? (
-                  <div className="flex justify-center py-20"><Loader2 className="animate-spin text-amber-500" size={40}/></div>
-                ) : logs.length === 0 ? (
-                  <div className="text-center py-20">
-                    <History size={48} className="mx-auto text-gray-800 mb-4 opacity-20"/>
-                    <p className="text-gray-600 font-bold italic">Hozircha tarix bo'sh</p>
-                  </div>
-                ) : (
-                  logs.map(log => (
-                    <div key={log.id} className="bg-gray-900 border border-gray-800 rounded-3xl p-5 flex items-center justify-between group hover:border-gray-700 transition-all">
-                      <div className="flex items-center gap-5">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-[1000] text-xl ${log.points > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                          {log.points > 0 ? `+${log.points}` : log.points}
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-black text-blue-400">{log.student ? `${log.student.name} ${log.student.surname}` : 'Guruhga'}</span>
-                            <span className="text-gray-700 font-black">/</span>
-                            <span className="text-gray-400 text-sm font-bold italic">{log.teacher?.name || 'Admin'}</span>
-                          </div>
-                          <p className="text-gray-500 text-xs font-medium max-w-sm">"{log.description}"</p>
-                          <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-gray-600 tracking-tighter mt-1">
-                            <Calendar size={10}/> {new Date(log.createdAt).toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                      <button onClick={() => cancelPointLog(log.id)} className="p-3 text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={20}/></button>
-                    </div>
-                  ))
-                )}
-             </div>
+  {showArchiveModal && (
+  <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[200] flex items-center justify-center p-4 text-white">
+    <div className="bg-gray-950 w-full max-w-2xl rounded-[3rem] border border-gray-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      
+      {/* Modal Header */}
+      <div className="p-8 border-b border-gray-800 flex justify-between items-center bg-gray-950">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-500"><History size={24}/></div>
+          <div>
+            <h2 className="text-xl font-black">{selectedGroup?.name}</h2>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">Ballar tarixi</p>
           </div>
         </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Ko'plab o'chirish tugmasi */}
+          {selectedLogIds.length > 0 && (
+            <button 
+              onClick={() => cancelPointLogs(selectedLogIds)}
+              className="bg-red-500 text-white px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-wider hover:bg-red-600 transition-all flex items-center gap-2 animate-in fade-in zoom-in duration-200"
+            >
+              <Trash2 size={14}/> O'chirish ({selectedLogIds.length})
+            </button>
+          )}
+          <button onClick={() => {setShowArchiveModal(false); setSelectedLogIds([]);}} className="p-3 hover:bg-gray-800 rounded-2xl transition-all text-gray-500 hover:text-white"><X/></button>
+        </div>
+      </div>
+
+      {/* Select All Bar */}
+      {!logsLoading && logs.length > 0 && (
+        <div className="px-8 py-3 bg-gray-900/30 border-b border-gray-800/50 flex items-center gap-3">
+          <input 
+            type="checkbox" 
+            checked={selectedLogIds.length === logs.length}
+            onChange={toggleSelectAll}
+            className="w-5 h-5 rounded-md border-gray-700 bg-gray-800 text-amber-500 focus:ring-amber-500 cursor-pointer"
+          />
+          <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Barchasini tanlash</span>
+        </div>
       )}
+      
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+        {logsLoading ? (
+          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-amber-500" size={40}/></div>
+        ) : logs.length === 0 ? (
+          <div className="text-center py-20">
+            <History size={48} className="mx-auto text-gray-800 mb-4 opacity-20"/>
+            <p className="text-gray-600 font-bold italic">Hozircha tarix bo'sh</p>
+          </div>
+        ) : (
+          logs.map(log => (
+            <div 
+              key={log.id} 
+              onClick={() => toggleSelect(log.id)}
+              className={`bg-gray-900 border transition-all cursor-pointer rounded-3xl p-4 flex items-center justify-between group 
+                ${selectedLogIds.includes(log.id) ? 'border-amber-500/50 bg-amber-500/5' : 'border-gray-800 hover:border-gray-700'}`}
+            >
+              <div className="flex items-center gap-5">
+                {/* Custom Checkbox Indicator */}
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all 
+                  ${selectedLogIds.includes(log.id) ? 'bg-amber-500 border-amber-500' : 'border-gray-700'}`}>
+                  {selectedLogIds.includes(log.id) && <Check size={12} strokeWidth={4} className="text-black"/>}
+                </div>
+
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-[1000] text-xl ${log.points > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                  {log.points > 0 ? `+${log.points}` : log.points}
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-black text-blue-400">{log.student ? `${log.student.name} ${log.student.surname}` : 'Guruhga'}</span>
+                    <span className="text-gray-700 font-black">/</span>
+                    <span className="text-gray-400 text-sm font-bold italic">{`${log.teacher?.name} ${log.teacher?.surname}`}</span>
+                  </div>
+                  <p className="text-gray-500 text-xs font-medium max-w-sm line-clamp-1 italic">"{log.description}"</p>
+                  <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-gray-600 tracking-tighter mt-1">
+                    <Calendar size={10}/> {new Date(log.createdAt).toLocaleString('uz-UZ')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Individual Trash (faqat bitta bo'lganda ko'rinadi yoki doimiy) */}
+              <button 
+                onClick={(e) => { e.stopPropagation(); cancelPointLogs(log.id); }} 
+                className="p-3 text-gray-700 hover:text-red-500 hover:bg-red-500/10 rounded-2xl md:opacity-0 group-hover:opacity-100 transition-all"
+              >
+                <Trash2 size={20}/>
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
